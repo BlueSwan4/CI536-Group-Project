@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    // TESTING BRANCHES
     void FixedUpdate()
     {
         speedX = Input.GetAxisRaw("Horizontal") * movSpeed;
