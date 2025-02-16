@@ -1,0 +1,81 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BattleManager : MonoBehaviour
+{
+    // May need to add functionality to make accessable anywhere later. For now only accessed by GameManager
+
+    public BattleState State;
+
+    private void Awake()
+    {
+        // Included so this function will be called everytime the GameManager switches states
+        GameManager.OnGameStateChanged += BattleStarted;
+    }
+
+    // Start inactive while no battles going
+    private void Start()
+    {
+        UpdateBattleState(BattleState.Inactive);
+    }
+
+    public void Update()
+    {
+        // Could include lots of if statements to check which BattleState is in to call various functions
+    }
+
+    // Can ignore function, just good practice
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= BattleStarted;
+    }
+
+    // Called from GameManager on state change
+    private void BattleStarted(GameState gameState)
+    {
+        if(gameState == GameState.Fighting)
+        {
+            UpdateBattleState(BattleState.StartBattle);
+        }
+    }
+
+    public void UpdateBattleState(BattleState newState)
+    {
+        State = newState;
+
+        switch (newState)
+        {
+            case BattleState.StartBattle:
+                // functions called befoe starting battle
+                break;
+            case BattleState.PlayerTurn:
+                // functions for player turn
+                break;
+            case BattleState.EnemyTurn:
+                break;
+            case BattleState.Victory:
+                // Not necessarily right place, but should change game state at some point after fight finished
+                GameManager.Instance.UpdateGameState(GameState.Wandering);
+                break;
+            case BattleState.Defeat:
+                // Not necessarily right place, but should change game state at some point after fight finished
+                GameManager.Instance.UpdateGameState(GameState.Wandering);
+                break;
+            case BattleState.Inactive:
+                // Need to set inactive at the end of a battle. Just haven't added functionality yet.
+                break;
+        }
+    }
+}
+
+// Add any states needed for the battle here
+public enum BattleState
+{
+    StartBattle,
+    PlayerTurn,
+    EnemyTurn,
+    Victory,
+    Defeat,
+    Inactive
+}
