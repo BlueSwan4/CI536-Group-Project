@@ -10,4 +10,7 @@ public class UnitDataSO : ScriptableObject
 {
     // Add more as necessary
     public string unitName;
+    public int maxUnitHealth;
+    public int baseAttack;
+    public int baseSpeed;
 }
