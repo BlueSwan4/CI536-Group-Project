@@ -16,12 +16,14 @@ public class GameManager : MonoBehaviour
     // does not already exist. Also need to change to don't destoy on load
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
     }
 
     private void Start()
     {
         UpdateGameState(GameState.Wandering);
+        // note the time - we want to run a random encounter check at a regular interval
     }
 
     public void UpdateGameState(GameState newState)
