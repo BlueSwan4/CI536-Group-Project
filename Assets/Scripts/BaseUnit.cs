@@ -7,6 +7,8 @@ public class BaseUnit : MonoBehaviour
 
     // variables (Shared between both player and enemy)
     public int health;
+    public int attack;
+    public int speed;
 
     void Start()
     {
