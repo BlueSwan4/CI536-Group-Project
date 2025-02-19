@@ -7,14 +7,24 @@ public class BattleManager : MonoBehaviour
 {
     // May need to add functionality to make accessable anywhere later. For now only accessed by GameManager
 
+    public static BattleManager Instance;
     public BattleState State;
     public List<BaseUnit> battleUnits = new List<BaseUnit>();
     [SerializeField] private int turnIndex = 0;
 
     private void Awake()
     {
-        // Included so this function will be called everytime the GameManager switches states
-        GameManager.OnGameStateChanged += BattleStarted;
+        if (Instance == null)
+        {
+            Instance = this;
+            // Included so this function will be called everytime the GameManager switches states
+            GameManager.OnGameStateChanged += BattleStarted;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        
     }
 
     // Start inactive while no battles going
@@ -60,6 +70,9 @@ public class BattleManager : MonoBehaviour
                 break;
             case BattleState.Victory:
                 // Not necessarily right place, but should change game state at some point after fight finished
+                // clear battle unit array
+                battleUnits.Clear();
+                // set active scene back to entry point
                 GameManager.Instance.UpdateGameState(GameState.Wandering);
                 break;
             case BattleState.Defeat:
@@ -75,6 +88,14 @@ public class BattleManager : MonoBehaviour
     public void UpdateTurnOrder()
     {
         battleUnits.Sort(TurnComparison);
+    }
+
+    public void OnBattleCycleStart()
+    {
+        // called every time a full set of turns completes
+        // (i.e. all player and enemy units have had their turn)
+        // NOTE: if we implement status effects the should be evaluated here
+        turnIndex = 0;
     }
 
     private int TurnComparison(BaseUnit a, BaseUnit b)
