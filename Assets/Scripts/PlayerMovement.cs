@@ -20,5 +20,8 @@ public class PlayerMovement : MonoBehaviour
         speedX = Input.GetAxisRaw("Horizontal") * movSpeed;
         speedY = Input.GetAxisRaw("Vertical") * movSpeed;
         rb.velocity = new Vector2(speedX, speedY);
+        // for each metre of movement increment steps
+        int metres = (int)rb.velocity.magnitude;
+        GameManager.Instance.stepsTakenInOverworld += metres;
     }
 }
