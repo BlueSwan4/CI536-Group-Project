@@ -27,8 +27,6 @@ public class GameManager : MonoBehaviour
         {
             // set up game manager static instance
             Instance = this;
-            // load battle scene additively - we can then switch between this and the current overworld scene
-            SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive);
         }
         else
         {
@@ -38,6 +36,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // scene loading has to be done from start, not awake
+        Scene startScene = SceneManager.GetActiveScene();
+        SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(startScene);
         UpdateGameState(GameState.Wandering);
         // note the steps taken - we want to run a random encounter check at a regular interval
         stepsTakenInOverworld = 0;
@@ -80,6 +82,8 @@ public class GameManager : MonoBehaviour
 
                     // update game state
                     UpdateGameState(GameState.Fighting);
+                    // put a console message to signify battle entry
+                    Debug.Log("Entering battle");
                 }
                 break;
         }
@@ -89,6 +93,9 @@ public class GameManager : MonoBehaviour
     private bool CheckForRandomEncounter()
     {
         if (inSafeArea)
+            return false;
+        // if we haven't moved then don't trigger an encounter
+        if (stepsTakenInOverworld == 0)
             return false;
 
         // use steps count to determine if we have encountered an enemy
