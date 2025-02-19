@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BaseEnemy : BaseUnit
 {
@@ -9,8 +10,15 @@ public class BaseEnemy : BaseUnit
 
     public void Start()
     {
-        speed = 5;
-        attack = 5;
-        health = 10;
+        // on instantiation, read in data from associated scriptable object
+        health = enemyStats.maxUnitHealth;
+        attack = enemyStats.baseAttack;
+        speed = enemyStats.baseSpeed;
+    }
+
+    public virtual void UseTurn()
+    {
+        // basic attack in the case of the basic enemy
+        // target player
     }
 }
