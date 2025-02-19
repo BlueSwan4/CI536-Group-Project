@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject playergameObj;
 
+    private Scene overworldScene;
+
     [Header("Random Encounter Data")]
     public int stepsTakenInOverworld = 0;
     public bool inSafeArea = false; // flag to limit encounters to "unsafe" areas
@@ -103,6 +105,21 @@ public class GameManager : MonoBehaviour
         float res = UnityEngine.Random.Range(0f, 50f) - stepsTakenInOverworld;
 
         return res < 20; // TODO: replace this with the final random encounter formula
+    }
+
+    private void TransitionToBattleFromOverworld()
+    {
+        // get a "hook" for the scene to return to on battle conclusion
+        overworldScene = SceneManager.GetActiveScene();
+        // move necessary objects to battle scene
+        SceneManager.MoveGameObjectToScene(playergameObj, SceneManager.GetSceneByName("BattleScene"));
+        SceneManager.MoveGameObjectToScene(transform.parent.gameObject, SceneManager.GetSceneByName("BattleScene"));
+        // set active scene to battle
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("BattleScene"));
+        // get battle root
+        var root = FindObjectOfType<GameObject>(true); // find root
+        root.SetActive(true);
+        // disable overworld root
     }
 }
 
