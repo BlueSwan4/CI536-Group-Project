@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour
@@ -7,6 +8,8 @@ public class BattleManager : MonoBehaviour
     // May need to add functionality to make accessable anywhere later. For now only accessed by GameManager
 
     public BattleState State;
+    public List<BaseUnit> battleUnits = new List<BaseUnit>();
+    [SerializeField] private int turnIndex = 0;
 
     private void Awake()
     {
@@ -47,7 +50,8 @@ public class BattleManager : MonoBehaviour
         switch (newState)
         {
             case BattleState.StartBattle:
-                // functions called befoe starting battle
+                // functions called before starting battle
+                // get reference to player
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn
@@ -66,6 +70,17 @@ public class BattleManager : MonoBehaviour
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
                 break;
         }
+    }
+
+    public void UpdateTurnOrder()
+    {
+        battleUnits.Sort(TurnComparison);
+    }
+
+    private int TurnComparison(BaseUnit a, BaseUnit b)
+    {
+        if (a.speed >= b.speed) return -1;
+        else return 1;
     }
 }
 
