@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BattleManager : MonoBehaviour
 {
@@ -11,6 +12,18 @@ public class BattleManager : MonoBehaviour
     public BattleState State;
     public List<BaseUnit> battleUnits = new List<BaseUnit>();
     [SerializeField] private int turnIndex = 0;
+
+    [Header("Battle Events")]
+    public UnityEvent BattleStart;
+    public UnityEvent BattleWon;
+    //UnityEvent BattleConclude;
+    public UnityEvent BattleLost;
+
+    [Header("Enemy Position Transformations")]
+    // single enemy (may want to use this for bosses for example
+    public Transform centredPosition;
+    
+    public Transform[] standardPositions = new Transform[4]; // positions for standard enemies
 
     private void Awake()
     {
@@ -50,6 +63,8 @@ public class BattleManager : MonoBehaviour
         if(gameState == GameState.Fighting)
         {
             UpdateBattleState(BattleState.StartBattle);
+            // raise battle start event
+            BattleStart.Invoke();
         }
     }
 
@@ -72,12 +87,13 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear battle unit array
                 battleUnits.Clear();
-                // set active scene back to entry point
-                GameManager.Instance.UpdateGameState(GameState.Wandering);
+                // raise battle won event
+                BattleWon.Invoke();
                 break;
             case BattleState.Defeat:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 GameManager.Instance.UpdateGameState(GameState.Wandering);
+                BattleLost.Invoke();
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -102,6 +118,23 @@ public class BattleManager : MonoBehaviour
     {
         if (a.speed >= b.speed) return -1;
         else return 1;
+    }
+
+    private void RollEnemies()
+    {
+        Debug.Log("Spawning Enemies");
+        // use this to determine what enemies to spawn
+        int enemyCount = UnityEngine.Random.Range(1, 4);
+
+        for (int i = 0; i < enemyCount; i++)
+        {
+            // spawn an enemy
+        }
+    }
+
+    private void RollEnemiesScripted()
+    {
+        // use this to add specific enemies (i.e. for story battles / bosses)
     }
 }
 
