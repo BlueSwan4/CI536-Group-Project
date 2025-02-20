@@ -16,6 +16,7 @@ public class Player : BaseUnit
         // subscribe to battle events
 
         GameManager.OnGameStateChanged += OnGameStateChanage;
+        BattleManager.BattleStateChange += OnBattleStateChanged;
     }
 
     // Update is called once per frame
@@ -34,6 +35,25 @@ public class Player : BaseUnit
                 break;
             case GameState.Fighting:
                 movementScript.enabled = false;
+                break;
+        }
+    }
+
+    private void OnBattleStateChanged(BattleState newBattleState)
+    {
+        switch (newBattleState) 
+        {
+            case BattleState.StartBattle:
+                break;
+            case BattleState.Victory:
+                break;
+            case BattleState.PlayerTurn:
+                break;
+            case BattleState.EnemyTurn:
+                break;
+            case BattleState.Defeat:
+                break;
+            case BattleState.Inactive:
                 break;
         }
     }
