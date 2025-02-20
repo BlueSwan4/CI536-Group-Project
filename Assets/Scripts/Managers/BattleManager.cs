@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class BattleManager : MonoBehaviour
 {
@@ -11,13 +10,16 @@ public class BattleManager : MonoBehaviour
 
     public static BattleManager Instance;
     public BattleState State;
-    public List<BaseUnit> battleUnits = new List<BaseUnit>();
+    public List<BaseUnit> battleUnits = new List<BaseUnit>(); // use this for evaluating turn order
+
+    // lists for storing player and enemy uunits seperately - these are for targeting
+    public List<Player> playerUnits = new List<Player>();
+    public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract and 
+
     [SerializeField] private int turnIndex = 0;
 
     // Battle Events
-    public static event Action BattleStart;
-    public static event Action BattleWon;
-    public static event Action BattleLost;
+    public static event Action<BattleState> BattleStateChange;
 
     [Header("Enemy Position Transformations")]
     // single enemy (may want to use this for bosses for example
@@ -63,8 +65,6 @@ public class BattleManager : MonoBehaviour
         if(gameState == GameState.Fighting)
         {
             UpdateBattleState(BattleState.StartBattle);
-            // raise battle start event
-            BattleStart.Invoke();
         }
     }
 
@@ -87,18 +87,19 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear battle unit array
                 battleUnits.Clear();
-                // raise battle won event
-                BattleWon?.Invoke();
+                // raise battle won event;
                 break;
             case BattleState.Defeat:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 GameManager.Instance.UpdateGameState(GameState.Wandering);
-                BattleLost?.Invoke();
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
                 break;
         }
+
+        // raise battle state change event
+        BattleStateChange?.Invoke(State);
     }
 
     public void UpdateTurnOrder()
@@ -136,6 +137,18 @@ public class BattleManager : MonoBehaviour
     {
         // use this to add specific enemies (i.e. for story battles / bosses)
     }
+
+    // UI INTERACTION METHODS - ATTACH THESE TO BATTLE GUI
+    // As battle manager does not initially exist in the battle scene, attach these at runtime
+    public void PlayerFight()
+    {
+        
+    }
+
+    public void EnableSelectEnemy()
+    {
+
+    } 
 }
 
 // Add any states needed for the battle here
@@ -146,5 +159,6 @@ public enum BattleState
     EnemyTurn,
     Victory,
     Defeat,
-    Inactive
+    Inactive,
+    SelectingEnemy
 }

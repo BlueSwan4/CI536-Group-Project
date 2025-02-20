@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
         // scene loading has to be done from start, not awake
         Scene startScene = SceneManager.GetActiveScene();
         SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive);
+        SceneManager.UnloadSceneAsync("SampleScene");
         SceneManager.SetActiveScene(startScene);
         UpdateGameState(GameState.Wandering);
         // note the steps taken - we want to run a random encounter check at a regular interval
@@ -117,8 +118,8 @@ public class GameManager : MonoBehaviour
         // set active scene to battle
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("BattleScene"));
         // get battle root
-        var root = FindObjectOfType<GameObject>(true); // find root
-        root.SetActive(true);
+        var root = GameObject.FindWithTag("BattleRootRef").GetComponent<RootReferenceHolder>(); // find root
+        root.rootObject.SetActive(true);
         // disable overworld root
     }
 }
