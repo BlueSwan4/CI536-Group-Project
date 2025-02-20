@@ -16,16 +16,22 @@ public class BattleManager : MonoBehaviour
     public List<Player> playerUnits = new List<Player>();
     public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract and 
 
-    [SerializeField] private int turnIndex = 0;
+    [SerializeField] private int turnIndex = 0; // expose this to the inspector for debugging
+
+    // temporary prefab reference for the basic enemy
+    // TODO: remove this once we've implemented more enemy types
+    [SerializeField] private GameObject baseEnemyPF;
 
     // Battle Events
     public static event Action<BattleState> BattleStateChange;
 
-    [Header("Enemy Position Transformations")]
+    [Header("Unit Positioning")]
     // single enemy (may want to use this for bosses for example
     public Transform centredPosition;
     
     public Transform[] standardPositions = new Transform[4]; // positions for standard enemies
+
+    public Transform playerPosition;
 
     private void Awake()
     {
@@ -45,6 +51,8 @@ public class BattleManager : MonoBehaviour
     // Start inactive while no battles going
     private void Start()
     {
+        // add listener for selection completion
+        //BattleCursor.EnemySelected += 
         UpdateBattleState(BattleState.Inactive);
     }
 
@@ -62,9 +70,15 @@ public class BattleManager : MonoBehaviour
     // Called from GameManager on state change
     private void BattleStarted(GameState gameState)
     {
-        if(gameState == GameState.Fighting)
+        if (gameState == GameState.Fighting)
         {
             UpdateBattleState(BattleState.StartBattle);
+            // the battle scene will be active by this point so we can attach the methods to the gui
+
+        }
+        else
+        {
+            UpdateBattleState(BattleState.Inactive);
         }
     }
 
@@ -76,7 +90,12 @@ public class BattleManager : MonoBehaviour
         {
             case BattleState.StartBattle:
                 // functions called before starting battle
-                // get reference to player
+                // spawn enemies
+                RollEnemies();
+                // set turn order based on enemy spawns
+                UpdateTurnOrder();
+                // set player position
+                GameManager.Instance.playergameObj.transform.position = playerPosition.position;
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn
@@ -100,6 +119,19 @@ public class BattleManager : MonoBehaviour
 
         // raise battle state change event
         BattleStateChange?.Invoke(State);
+
+        // if we are in the start state, update battle state again to be either player or enemy turn
+        if (State == BattleState.StartBattle)
+        {
+            if (battleUnits[0] is Player)
+            {
+                UpdateBattleState(BattleState.PlayerTurn);
+            }
+            else
+            {
+                UpdateBattleState(BattleState.EnemyTurn);
+            }
+        }
     }
 
     public void UpdateTurnOrder()
@@ -107,12 +139,19 @@ public class BattleManager : MonoBehaviour
         battleUnits.Sort(TurnComparison);
     }
 
-    public void OnBattleCycleStart()
+    public void OnTurnEnd()
     {
-        // called every time a full set of turns completes
-        // (i.e. all player and enemy units have had their turn)
-        // NOTE: if we implement status effects the should be evaluated here
-        turnIndex = 0;
+        // called once a turn is ended
+        turnIndex++;
+
+        // check if we need to start a new cycle
+        
+        if (turnIndex >= battleUnits.Count)
+        {
+            turnIndex = 0;
+            // allow player to select their move again
+            UpdateBattleState(BattleState.PlayerTurn);
+        }
     }
 
     private int TurnComparison(BaseUnit a, BaseUnit b)
@@ -123,13 +162,23 @@ public class BattleManager : MonoBehaviour
 
     private void RollEnemies()
     {
+        // TODO: add randomised enemy spawning once we have more enemy types
+
         Debug.Log("Spawning Enemies");
         // use this to determine what enemies to spawn
-        int enemyCount = UnityEngine.Random.Range(1, 4);
+        int enemyCount = UnityEngine.Random.Range(1, 5);
 
         for (int i = 0; i < enemyCount; i++)
         {
-            // spawn an enemy
+            // spawn an enemy - make the parent the battle scene root
+            GameObject enemy = Instantiate(baseEnemyPF, 
+                GameObject.FindWithTag("BattleRootRef").GetComponent<RootReferenceHolder>().rootObject.transform);
+
+            // set enemy position to that of the enemy hook
+            enemy.transform.position = standardPositions[i].position;
+            // add enemy to recquired lists
+            battleUnits.Add(enemy.GetComponent<BaseEnemy>());
+            enemyUnits.Add(enemy.GetComponent<BaseEnemy>());
         }
     }
 
@@ -142,12 +191,32 @@ public class BattleManager : MonoBehaviour
     // As battle manager does not initially exist in the battle scene, attach these at runtime
     public void PlayerFight()
     {
-        
+        // this is called once the enemy is selected
+    }
+
+    public void FleeBattle()
+    {
+        // currently auto leave battle, with no reward
+        GameManager.Instance.UpdateGameState(GameState.Wandering);
+
+        // clear battle units
+        battleUnits.Clear();
+
+        // loop through enemies list and destroy them
+        for (int i = 0; i < enemyUnits.Count; i++)
+        {
+            Destroy(enemyUnits[i].gameObject);
+        }
+
+        // clear enemy unit list
+        enemyUnits.Clear();
+
+        // TODO: transition back to overworld
     }
 
     public void EnableSelectEnemy()
     {
-
+        // attatch this method to the fight button for mvp battle system
     } 
 }
 
