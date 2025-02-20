@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -13,11 +14,10 @@ public class BattleManager : MonoBehaviour
     public List<BaseUnit> battleUnits = new List<BaseUnit>();
     [SerializeField] private int turnIndex = 0;
 
-    [Header("Battle Events")]
-    public UnityEvent BattleStart;
-    public UnityEvent BattleWon;
-    //UnityEvent BattleConclude;
-    public UnityEvent BattleLost;
+    // Battle Events
+    public static event Action BattleStart;
+    public static event Action BattleWon;
+    public static event Action BattleLost;
 
     [Header("Enemy Position Transformations")]
     // single enemy (may want to use this for bosses for example
@@ -88,12 +88,12 @@ public class BattleManager : MonoBehaviour
                 // clear battle unit array
                 battleUnits.Clear();
                 // raise battle won event
-                BattleWon.Invoke();
+                BattleWon?.Invoke();
                 break;
             case BattleState.Defeat:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 GameManager.Instance.UpdateGameState(GameState.Wandering);
-                BattleLost.Invoke();
+                BattleLost?.Invoke();
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
