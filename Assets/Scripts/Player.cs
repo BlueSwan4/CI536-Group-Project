@@ -31,10 +31,10 @@ public class Player : BaseUnit
         {
             case GameState.Wandering:
                 // enable movement
-                movementScript.enabled = true;
+                movementScript.EnableMovement();
                 break;
             case GameState.Fighting:
-                movementScript.enabled = false;
+                movementScript.DisableMovement();
                 break;
         }
     }
