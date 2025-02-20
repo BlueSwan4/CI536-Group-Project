@@ -19,7 +19,7 @@ public class BattleCursor : MonoBehaviour
     {
         // subscribe to the battle state change event
         BattleManager.BattleStateChange += OnBatleStateChange;
-
+        cursorSprite.enabled = false;
     }
 
     // Update is called once per frame
@@ -52,6 +52,9 @@ public class BattleCursor : MonoBehaviour
             if (selectionIndex < 0 || selectionIndex > BattleManager.Instance.enemyUnits.Count - 1)
                 return;
 
+            // move cursor to chosen enemy pos
+            transform.position = BattleManager.Instance.enemyUnits[selectionIndex].transform.position + new Vector3(-1, 0, 0);
+
             // check for selection input (z key)
             if (Input.GetKeyUp(KeyCode.Z))
             {
@@ -70,6 +73,8 @@ public class BattleCursor : MonoBehaviour
                 // enable sprite and movement
                 cursorSprite.enabled = true;
                 selectingEnemy = true;
+                // set position to that of 0th enemy
+                transform.position = BattleManager.Instance.enemyUnits[0].transform.position  + new Vector3(-1, 0, 0);
                 break;
             default:
                 cursorSprite.enabled = false;
