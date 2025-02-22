@@ -8,11 +8,11 @@ public class BattleCursor : MonoBehaviour
     [Header("GameObject References")]
     public SpriteRenderer cursorSprite;
 
-    private bool selectingEnemy = false;
+    [SerializeField]private bool selectingEnemy = false;
 
     // event for enemy selection - raised when enemy is selected
     public static event Action<int> EnemySelected;
-    private int selectionIndex = 0;
+    [SerializeField]private int selectionIndex = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +23,7 @@ public class BattleCursor : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         if (selectingEnemy)
         {
@@ -42,15 +42,11 @@ public class BattleCursor : MonoBehaviour
             else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
             {
                 // increment index as we go down - if we go over the limit wrap to 0
-                selectionIndex--;
+                selectionIndex++;
 
                 if (selectionIndex >= BattleManager.Instance.enemyUnits.Count)
                     selectionIndex = 0;
             }
-
-            // check that current value is valid - if not break from call
-            if (selectionIndex < 0 || selectionIndex > BattleManager.Instance.enemyUnits.Count - 1)
-                return;
 
             // move cursor to chosen enemy pos
             transform.position = BattleManager.Instance.enemyUnits[selectionIndex].transform.position + new Vector3(-1, 0, 0);
@@ -59,6 +55,7 @@ public class BattleCursor : MonoBehaviour
             if (Input.GetKeyUp(KeyCode.Z))
             {
                 // we've selected an enemy, raise the event
+                Debug.Log("Enemy selected at index: " + selectionIndex);
                 EnemySelected?.Invoke(selectionIndex);
             }
         }
