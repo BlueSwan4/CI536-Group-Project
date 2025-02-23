@@ -20,5 +20,7 @@ public class BaseEnemy : BaseUnit
     {
         // basic attack in the case of the basic enemy
         // target player
+        target = GameManager.Instance.playergameObj.GetComponent<Player>();
+        StartCoroutine("UseBasicAttack");
     }
 }
