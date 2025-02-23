@@ -7,6 +7,7 @@ public class BaseEnemy : BaseUnit
 {
     //variables
     [SerializeField] private UnitDataSO enemyStats;
+    [SerializeField] private BasicEnemyAnimControl anim;
 
     public void Start()
     {
@@ -21,6 +22,7 @@ public class BaseEnemy : BaseUnit
         // basic attack in the case of the basic enemy
         // target player
         target = GameManager.Instance.playergameObj.GetComponent<Player>();
+        anim.ShowAttack();
         StartCoroutine("UseBasicAttack");
     }
 }

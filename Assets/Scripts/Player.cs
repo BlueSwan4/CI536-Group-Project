@@ -6,6 +6,7 @@ public class Player : BaseUnit
 {
     // Start is called before the first frame update
     public PlayerMovement movementScript;
+    public PlayerAnimControl animationScript;
 
     void Start()
     {
@@ -56,5 +57,21 @@ public class Player : BaseUnit
             case BattleState.Inactive:
                 break;
         }
+    }
+
+    public void OnEnemySelected(int enemyIndex)
+    {
+        // return if we are not in a battle
+        if (GameManager.Instance.State != GameState.Fighting)
+            return;
+        // if there aren't enemies left, also return
+        if (!(BattleManager.Instance.enemyUnits.Count > 0))
+            return;
+
+        // we have selected an enemy
+        // play attack anim
+        animationScript.ShowPlayerAttack();
+        // start attack coroutine
+        StartCoroutine("UseBasicAttack");
     }
 }

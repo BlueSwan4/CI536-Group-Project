@@ -51,7 +51,7 @@ public class BaseUnit : MonoBehaviour
     }
 
 
-    public IEnumerator UseBasicAttack()
+    public virtual IEnumerator UseBasicAttack()
     {
         // begins attack using a delay
         // based off of Unity's Coroutine Documentation (2025). Acc: 23/02/2025
