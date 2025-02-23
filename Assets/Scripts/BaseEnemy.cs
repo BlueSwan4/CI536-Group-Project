@@ -16,7 +16,7 @@ public class BaseEnemy : BaseUnit
         speed = enemyStats.baseSpeed;
     }
 
-    public virtual void UseTurn()
+    public override void UseTurn()
     {
         // basic attack in the case of the basic enemy
         // target player
