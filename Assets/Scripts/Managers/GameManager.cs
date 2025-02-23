@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Based off of Tarodev (2021)'s Game Manager tutorial. Acc: 16/2/2025
+
 public class GameManager : MonoBehaviour
 {
     // Allows GameManager to be called from anywhere
