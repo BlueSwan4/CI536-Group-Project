@@ -57,6 +57,9 @@ public class BattleCursor : MonoBehaviour
                 // we've selected an enemy, raise the event
                 Debug.Log("Enemy selected at index: " + selectionIndex);
                 EnemySelected?.Invoke(selectionIndex);
+                // disable cursor
+                cursorSprite.enabled = false;
+                selectingEnemy = false;
             }
         }
     }
