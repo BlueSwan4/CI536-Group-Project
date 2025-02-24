@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
         {
             // set up game manager static instance
             Instance = this;
+            // subscribe to battle end event
+            BattleManager.BattleEndEvent += OnBattleEnd;
         }
         else
         {
@@ -132,6 +134,20 @@ public class GameManager : MonoBehaviour
         SceneManager.SetActiveScene(overworldScene);
         // enable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(true);
+    }
+
+    private void OnBattleEnd()
+    {
+        // event handler for battle end
+        // for now we just return to the overworld
+        UpdateGameState(GameState.Wandering);
+    }
+
+    private void OnDestroy()
+    {
+        // maybe not necessary, but as mentioned by violet this is probably good practice
+        // unsubscribe from all events
+        BattleManager.BattleEndEvent -= OnBattleEnd;
     }
 }
 
