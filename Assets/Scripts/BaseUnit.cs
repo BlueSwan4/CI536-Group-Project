@@ -9,8 +9,8 @@ using static UnityEngine.GraphicsBuffer;
 public class BaseUnit : MonoBehaviour
 {
     // unit events
-    public static event Action unitEndEvent;
-    public static event Action<BaseUnit> unitDeathEvent; // raised when the unit dies
+    public static event Action UnitTurnEndEvent;
+    public static event Action<BaseUnit> UnitDeathEvent; // raised when the unit dies
 
     // variables (Shared between both player and enemy)
     public int health;
@@ -46,7 +46,7 @@ public class BaseUnit : MonoBehaviour
         {
             health = 0;
             // raise death event
-            unitDeathEvent.Invoke(this);
+            UnitDeathEvent.Invoke(this);
         }
     }
 
@@ -68,6 +68,6 @@ public class BaseUnit : MonoBehaviour
     public static void EndUnitTurn()
     {
         // method responsible for ending the unit turn and raising the corresponding event
-        unitEndEvent.Invoke();
+        UnitTurnEndEvent.Invoke();
     }
 }
