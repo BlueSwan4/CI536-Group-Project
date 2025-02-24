@@ -8,6 +8,7 @@ public class Player : BaseUnit
     public PlayerMovement movementScript;
     public PlayerAnimControl animationScript;
 
+
     void Start()
     {
         speed = 10;
@@ -67,6 +68,10 @@ public class Player : BaseUnit
         // if there aren't enemies left, also return
         if (!(BattleManager.Instance.enemyUnits.Count > 0))
             return;
+
+        // set target to the enemy at the selected index
+        target = BattleManager.Instance.enemyUnits[enemyIndex];
+
 
         // we have selected an enemy
         // play attack anim
