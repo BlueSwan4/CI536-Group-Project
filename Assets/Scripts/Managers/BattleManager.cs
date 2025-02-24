@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class BattleManager : MonoBehaviour
 
     // Battle Events
     public static event Action<BattleState> BattleStateChange;
+    public static event Action BattleEndEvent;
 
     [Header("Unit Positioning")]
     // single enemy (may want to use this for bosses for example
@@ -74,6 +76,13 @@ public class BattleManager : MonoBehaviour
         {
             UpdateBattleState(BattleState.StartBattle);
             // the battle scene will be active by this point so we can attach the methods to the gui
+            // grab the gui and attach the necessary functions
+            Button fightButton = GameObject.FindWithTag("FightButton").GetComponent<Button>();
+            fightButton.onClick.AddListener(EnableSelectEnemy);
+
+            // attach the run button
+            Button runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
+            runButton.onClick.AddListener(FleeBattle);
 
         }
         else
@@ -93,6 +102,9 @@ public class BattleManager : MonoBehaviour
                 // spawn enemies
                 RollEnemies();
                 // set turn order based on enemy spawns
+                // add player to battle units and players list
+                playerUnits.Add(GameManager.Instance.playergameObj.GetComponent<Player>());
+                battleUnits.Add(GameManager.Instance.playergameObj.GetComponent<Player>());
                 UpdateTurnOrder();
                 // set player position
                 GameManager.Instance.playergameObj.transform.position = playerPosition.position;
@@ -106,11 +118,15 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear battle unit array
                 battleUnits.Clear();
+
                 // raise battle won event;
+                BattleEndEvent.Invoke();
                 break;
             case BattleState.Defeat:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 GameManager.Instance.UpdateGameState(GameState.Wandering);
+                break;
+            case BattleState.SelectingEnemy:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -189,9 +205,11 @@ public class BattleManager : MonoBehaviour
 
     // UI INTERACTION METHODS - ATTACH THESE TO BATTLE GUI
     // As battle manager does not initially exist in the battle scene, attach these at runtime
-    public void PlayerFight()
+    public void PlayerFight(int target)
     {
         // this is called once the enemy is selected
+        // is subscribed to the EnemySelected event
+        
     }
 
     public void FleeBattle()
@@ -216,8 +234,33 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSelectEnemy()
     {
-        // attatch this method to the fight button for mvp battle system
-    } 
+        UpdateBattleState(BattleState.SelectingEnemy);
+    }
+
+    public void OnUnitDeath(BaseUnit deadUnit)
+    {
+        // check unit type
+        if (deadUnit is BaseEnemy)
+        {
+            // enemy died
+            enemyUnits.Remove(deadUnit as BaseEnemy);
+            battleUnits.Remove(deadUnit);
+
+            Destroy(deadUnit.gameObject);
+
+            // check amount of remaining enemies
+            if (!(enemyUnits.Count > 0))
+            {
+                // battle is won
+                UpdateBattleState(BattleState.Victory);
+            }
+        }
+        else if (deadUnit is Player)
+        {
+            // rip player 2025 to 2025
+
+        }
+    }
 }
 
 // Add any states needed for the battle here
