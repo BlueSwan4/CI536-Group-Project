@@ -85,7 +85,7 @@ public class BattleManager : MonoBehaviour
     {
         if (gameState == GameState.Fighting)
         {
-            UpdateBattleState(BattleState.StartBattle);
+            
             // the battle scene will be active by this point so we can attach the methods to the gui
             // grab the gui and attach the necessary functions
             fightButton = GameObject.FindWithTag("FightButton").GetComponent<Button>();
@@ -94,7 +94,7 @@ public class BattleManager : MonoBehaviour
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
             runButton.onClick.AddListener(FleeBattle);
-
+            UpdateBattleState(BattleState.StartBattle);
         }
         else
         {
