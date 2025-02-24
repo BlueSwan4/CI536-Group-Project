@@ -61,6 +61,8 @@ public class BaseUnit : MonoBehaviour
         {
             target.ReceieveDamage(attack);
             // end the turn
+            // clear current target
+            target = null;
             EndUnitTurn();
         }
     }
