@@ -51,6 +51,7 @@ public class BattleManager : MonoBehaviour
             // subscribe to turn end event
             BaseUnit.UnitTurnEndEvent += OnTurnEnd;
             BaseUnit.UnitDeathEvent += OnUnitDeath;
+            BattleCursor.EnemySelected += PlayerFight;
         }
         else
         {
@@ -125,6 +126,8 @@ public class BattleManager : MonoBehaviour
                 // set player position
                 Debug.Log("setting player pos");
                 GameManager.Instance.playergameObj.transform.position = playerPosition.position;
+                // reset turn index to 0
+                turnIndex = 0;
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn
@@ -185,21 +188,27 @@ public class BattleManager : MonoBehaviour
         // called once a turn is ended
         turnIndex++;
 
+        Debug.Log("Current turn index: " + turnIndex.ToString());
+
         // check if we need to start a new cycle
         
-        if (turnIndex >= battleUnits.Count)
+        // check if all enemy units are dead
+        if (battleUnits.Count > 0)
         {
-            turnIndex = 0;
-        }
+            if (turnIndex >= battleUnits.Count)
+            {
+                turnIndex = 0;
+            }
 
-        // update battle state to determine next turn
-        if (battleUnits[turnIndex] is BaseEnemy)
-        {
-            UpdateBattleState(BattleState.EnemyTurn);
-        }
-        else if (battleUnits[turnIndex] is Player)
-        {
-            UpdateBattleState(BattleState.PlayerTurn);
+            // update battle state to determine next turn
+            if (battleUnits[turnIndex] is BaseEnemy)
+            {
+                UpdateBattleState(BattleState.EnemyTurn);
+            }
+            else if (battleUnits[turnIndex] is Player)
+            {
+                UpdateBattleState(BattleState.PlayerTurn);
+            }
         }
     }
 
@@ -243,11 +252,17 @@ public class BattleManager : MonoBehaviour
         // this is called once the enemy is selected
         // is subscribed to the EnemySelected event
         // check if we are on player's turn
+        Debug.Log("Receieved enemy selection");
+
         if (turnIndex >= 0 && turnIndex < battleUnits.Count)
         {
             if (battleUnits[turnIndex] is not Player)
+            {
+                Debug.Log("Not on player turn");
                 return;
+            }
 
+            Debug.Log("On player turn, carrying out movement");
             // we are on player turn, attack the enemy
             var player = battleUnits[turnIndex] as Player;
 

@@ -60,6 +60,9 @@ public class BattleCursor : MonoBehaviour
                 // disable cursor
                 cursorSprite.enabled = false;
                 selectingEnemy = false;
+
+                // reset cursor pos
+                selectionIndex = 0;
             }
         }
     }
