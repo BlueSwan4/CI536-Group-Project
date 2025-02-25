@@ -124,7 +124,7 @@ public class BattleManager : MonoBehaviour
                 UpdateTurnOrder();
                 // set player position
                 Debug.Log("setting player pos");
-                GameManager.Instance.playergameObj.transform.position.Set(-7, 0, 0);
+                GameManager.Instance.playergameObj.transform.position = playerPosition.position;
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn
