@@ -123,7 +123,8 @@ public class BattleManager : MonoBehaviour
                 battleUnits.Add(GameManager.Instance.playergameObj.GetComponent<Player>());
                 UpdateTurnOrder();
                 // set player position
-                GameManager.Instance.playergameObj.transform.position = playerPosition.position;
+                Debug.Log("setting player pos");
+                GameManager.Instance.playergameObj.transform.position.Set(-7, 0, 0);
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn

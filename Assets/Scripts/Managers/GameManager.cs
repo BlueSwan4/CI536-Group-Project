@@ -88,7 +88,6 @@ public class GameManager : MonoBehaviour
                 }
                 break;
         }
-        
     }
 
     private bool CheckForRandomEncounter()
