@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+// Also based off of Tarodev's (2021) GameManager tutorial. Acc: 16/2/2025
 public class BattleManager : MonoBehaviour
 {
     // May need to add functionality to make accessable anywhere later. For now only accessed by GameManager
