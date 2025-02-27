@@ -1,9 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BaseEnemy : BaseUnit
 {
     //variables
     [SerializeField] private UnitDataSO enemyStats;
+    [SerializeField] private BasicEnemyAnimControl anim;
+
+    public void Start()
+    {
+        // on instantiation, read in data from associated scriptable object
+        maxHealth = enemyStats.maxUnitHealth;
+        health = enemyStats.maxUnitHealth;
+        attack = enemyStats.baseAttack;
+        speed = enemyStats.baseSpeed;
+    }
+
+    public override void UseTurn()
+    {
+        // basic attack in the case of the basic enemy
+        // target player
+        target = GameManager.Instance.playergameObj.GetComponent<Player>();
+        anim.ShowAttack();
+        StartCoroutine("UseBasicAttack");
+    }
 }
