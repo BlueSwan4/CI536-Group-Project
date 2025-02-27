@@ -12,6 +12,7 @@ public class BaseEnemy : BaseUnit
     public void Start()
     {
         // on instantiation, read in data from associated scriptable object
+        maxHealth = enemyStats.maxUnitHealth;
         health = enemyStats.maxUnitHealth;
         attack = enemyStats.baseAttack;
         speed = enemyStats.baseSpeed;

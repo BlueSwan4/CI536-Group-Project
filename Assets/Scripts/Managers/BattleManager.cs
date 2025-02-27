@@ -147,14 +147,14 @@ public class BattleManager : MonoBehaviour
                 // clear battle unit array
                 ClearBattleUnits();
 
-                // raise battle won event;
+                // raise battle won event (GameManager);
                 BattleEndEvent.Invoke();
                 break;
             case BattleState.Defeat:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear unit lists
                 ClearBattleUnits();
-                BattleEndEvent.Invoke();
+                BattleEndEvent.Invoke(); // GameManager
                 break;
             case BattleState.SelectingEnemy:
                 break;
@@ -185,9 +185,10 @@ public class BattleManager : MonoBehaviour
         battleUnits.Sort(TurnComparison);
     }
 
+    // Called from BaseUnit EndUnitTurn()
     public void OnTurnEnd()
     {
-        // called once a turn is ended
+        // called every time a turn is ends
         turnIndex++;
 
         Debug.Log("Current turn index: " + turnIndex.ToString());
@@ -220,6 +221,7 @@ public class BattleManager : MonoBehaviour
         else return 1;
     }
 
+    // NEEDS CHANGING
     private void RollEnemies()
     {
         // TODO: add randomised enemy spawning once we have more enemy types
@@ -247,8 +249,7 @@ public class BattleManager : MonoBehaviour
         // use this to add specific enemies (i.e. for story battles / bosses)
     }
 
-    // UI INTERACTION METHODS - ATTACH THESE TO BATTLE GUI
-    // As battle manager does not initially exist in the battle scene, attach these at runtime
+    // Connected to BattleCursor Update()
     public void PlayerFight(int target)
     {
         // this is called once the enemy is selected
@@ -307,6 +308,7 @@ public class BattleManager : MonoBehaviour
         UpdateBattleState(BattleState.SelectingEnemy);
     }
 
+    // Called every time a unit dies from BaseUnit
     public void OnUnitDeath(BaseUnit deadUnit)
     {
         // check unit type

@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Random Encounter Data")]
     public float stepsTakenInOverworld = 0;
+
+    // Not used at the moment, IMPLEMENT LATER
     public bool inSafeArea = false; // flag to limit encounters to "unsafe" areas
 
 
@@ -135,6 +137,7 @@ public class GameManager : MonoBehaviour
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(true);
     }
 
+    // Called from UpdateBattleState BattleManager (State Victory and Defeat)
     private void OnBattleEnd()
     {
         // event handler for battle end

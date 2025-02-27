@@ -13,6 +13,7 @@ public class BaseUnit : MonoBehaviour
     public static event Action<BaseUnit> UnitDeathEvent; // raised when the unit dies
 
     // variables (Shared between both player and enemy)
+    public int maxHealth;
     public int health;
     public int attack;
     public int speed;
@@ -35,6 +36,7 @@ public class BaseUnit : MonoBehaviour
 
     }
 
+    //Connects to BattleManager
     public virtual void ReceieveDamage(int amount)
     {
         // do damage reduction here
@@ -67,6 +69,7 @@ public class BaseUnit : MonoBehaviour
         }
     }
 
+    //Connects to BattleManager
     public static void EndUnitTurn()
     {
         // method responsible for ending the unit turn and raising the corresponding event

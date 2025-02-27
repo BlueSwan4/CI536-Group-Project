@@ -67,6 +67,7 @@ public class BattleCursor : MonoBehaviour
         }
     }
 
+    // Called from Battlemanager UpdateBattleState every time state changes
     private void OnBatleStateChange(BattleState newState)
     {
         // battle state change event listener

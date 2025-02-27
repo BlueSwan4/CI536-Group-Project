@@ -18,6 +18,7 @@ public class Player : BaseUnit
         // subscribe to battle events
 
         GameManager.OnGameStateChanged += OnGameStateChanage;
+//TAKE OUT
         BattleManager.BattleStateChange += OnBattleStateChanged;
     }
 
@@ -27,6 +28,7 @@ public class Player : BaseUnit
         
     }
 
+// Called when the game manager switches states
     private void OnGameStateChanage(GameState newState)
     {
         switch (newState) 
@@ -40,7 +42,7 @@ public class Player : BaseUnit
                 break;
         }
     }
-
+//TAKE OUT
     private void OnBattleStateChanged(BattleState newBattleState)
     {
         switch (newBattleState) 
