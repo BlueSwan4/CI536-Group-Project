@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using Unity.VisualScripting;
 
 
 // Also based off of Tarodev's (2021) GameManager tutorial. Acc: 16/2/2025
@@ -40,7 +42,22 @@ public class BattleManager : MonoBehaviour
     [Header("GUI References")]
     public Button fightButton;
     public Button runButton;
-    public Text battleCaptionText;
+    public TextMeshProUGUI battleCaptionText;
+
+
+    //references to the specific buttons
+
+    public Button confirmSelection;
+    public Button rejectSelection;
+
+    //reference the animtaion controller script and object
+    [SerializeField] TransitionsAnimController transitionController;
+
+    //bandage fix so the exit transition works
+
+
+
+
 
     private void Awake()
     {
@@ -68,6 +85,8 @@ public class BattleManager : MonoBehaviour
         // add listener for selection completion
         //BattleCursor.EnemySelected += 
         UpdateBattleState(BattleState.Inactive);
+
+
     }
 
     public void Update()
@@ -96,8 +115,29 @@ public class BattleManager : MonoBehaviour
 
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
-            runButton.onClick.AddListener(FleeBattle);
+            runButton.onClick.AddListener(OpenFleeSelection);
             UpdateBattleState(BattleState.StartBattle);
+
+            //find the conformation buttons and deactivate them
+            
+            confirmSelection = GameObject.FindWithTag("ConfirmSelection").GetComponent<Button>();
+            rejectSelection = GameObject.FindWithTag("RejectSelection").GetComponent<Button>();
+
+            rejectSelection.gameObject.SetActive(false);
+
+            confirmSelection.gameObject.SetActive(false);
+
+            //find the text
+            battleCaptionText = GameObject.FindWithTag("Description").GetComponent<TextMeshProUGUI>();
+
+            //transitions
+            //im finding the animation controller here, im not too sure if this is the right way to do it
+            
+            transitionController = GameObject.FindWithTag("Transitions").GetComponent<TransitionsAnimController>();
+
+             
+             
+
         }
         else
         {
@@ -294,8 +334,48 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+
+
+    public void OpenFleeSelection()
+    {
+        battleCaptionText.text = " are you sure you want to flee? ";
+
+        // re enable the selection buttons
+        rejectSelection.gameObject.SetActive(true);
+
+        confirmSelection.gameObject.SetActive(true);
+
+        //add listeners
+        rejectSelection.onClick.AddListener(CloseFleeSelection);
+        confirmSelection.onClick.AddListener(FleeBattle); 
+
+    }
+
+    public void CloseFleeSelection()
+    {
+        battleCaptionText.text = " ";
+
+        rejectSelection.gameObject.SetActive(false);
+
+        confirmSelection.gameObject.SetActive(false);
+    }
+
     public void FleeBattle()
     {
+        //fade out
+        transitionController.CrossFadeOut();
+        battleCaptionText.text = " ";
+
+        //THIS IS A BANDAGE FIX, i WILL ASK ABOUT THIS LATER
+        StartCoroutine(ExitBattle());
+
+
+    }
+
+    IEnumerator ExitBattle()
+    {
+        yield return new WaitForSeconds(1);
+
         // currently auto leave battle, with no reward
         ClearBattleUnits();
         GameManager.Instance.UpdateGameState(GameState.Wandering);

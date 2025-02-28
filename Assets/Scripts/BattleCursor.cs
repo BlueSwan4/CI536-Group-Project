@@ -31,7 +31,7 @@ public class BattleCursor : MonoBehaviour
             // w / up - move cursor up
             // s / down - move cursor down
 
-            if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
+            if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 // decrement index - if we go under 0 wrap it round to end of enemies
                 selectionIndex--;
@@ -39,7 +39,7 @@ public class BattleCursor : MonoBehaviour
                 if (selectionIndex < 0)
                     selectionIndex = BattleManager.Instance.enemyUnits.Count - 1;
             }
-            else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
+            else if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
             {
                 // increment index as we go down - if we go over the limit wrap to 0
                 selectionIndex++;
