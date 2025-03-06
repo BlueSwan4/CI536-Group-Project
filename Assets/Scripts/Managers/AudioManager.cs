@@ -5,18 +5,35 @@ using System;
 
 public class AudioManager : MonoBehaviour
 {
+    // Based off Rehope Games Audio Manager Tutorial
+    public static AudioManager Instance;
+
     public Sound[] musicSounds, sfxSounds;
     public AudioSource musicSource, sfxSource;
 
     // NOTE: May need to make this DontDestroyOnLoad and an instance at some point so can be accessed anywhere
     // Also need to connect to gameManager
 
-    private void Start()
+    private void Awake()
     {
-        // NOTE: Empty for now. Add music that wants to play from the start here (e.g. overworld music)
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    public void PlaySound(string name)
+    private void Update()
+    {
+        Debug.Log(musicSource.isPlaying);
+    }
+
+    // Pass in the name of the music you want to play and it plays
+    // Called from GameManager when states switch
+    public void PlayMusic(string name)
     {
         // From what I understand this is a shortcut of a search algorithm
         Sound s = Array.Find(musicSounds, x => x.name == name);
@@ -29,9 +46,11 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.clip = s.clip;
             musicSource.Play();
+            Debug.Log("Hey");
         }
     }
 
+    // Pass in the name of the sound effect you want to play and it plays
     public void PlaySFX(string name)
     {
         // From what I understand this is a shortcut of a search algorithm
@@ -46,5 +65,16 @@ public class AudioManager : MonoBehaviour
             sfxSource.clip = s.clip;
             sfxSource.Play();
         }
+    }
+
+    // Functions can be called from settings to have sliders to change volume
+    public void ChangeMusicVolume(float volume)
+    {
+        musicSource.volume = volume;
+    }
+
+    public void ChangeSFXVolume(float volume)
+    {
+        sfxSource.volume = volume;
     }
 }

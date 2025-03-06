@@ -62,11 +62,13 @@ public class GameManager : MonoBehaviour
                     TransitionToOverworldFromBattle();
 
                 stepsTakenInOverworld = 0;
+                //AudioManager.Instance.PlayMusic("OverworldMusic");
                 break;
             case GameState.Fighting:
                 // Activate the BattleManager
                 // move to battle scene
                 TransitionToBattleFromOverworld();
+                //AudioManager.Instance.PlayMusic("BattleMusic");
                 break;
         }
 
