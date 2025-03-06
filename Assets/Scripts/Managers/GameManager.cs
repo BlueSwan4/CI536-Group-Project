@@ -86,7 +86,7 @@ public class GameManager : MonoBehaviour
                 if (encounter)
                 {
                     Debug.Log("Encounter");
-                    UpdateGameState(GameState.Fighting);
+                    //UpdateGameState(GameState.Fighting);
                 }
                 break;
         }
