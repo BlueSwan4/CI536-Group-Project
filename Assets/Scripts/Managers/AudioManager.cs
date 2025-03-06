@@ -26,11 +26,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        Debug.Log(musicSource.isPlaying);
-    }
-
     // Pass in the name of the music you want to play and it plays
     // Called from GameManager when states switch
     public void PlayMusic(string name)
@@ -46,7 +41,6 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.clip = s.clip;
             musicSource.Play();
-            Debug.Log("Hey");
         }
     }
 
