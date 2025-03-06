@@ -265,6 +265,10 @@ public class BattleManager : MonoBehaviour
                 return;
             }
 
+            // disable fight / run buttons (no turning back now)
+            runButton.interactable = false;
+            fightButton.interactable = false;
+
             Debug.Log("On player turn, carrying out movement");
             // we are on player turn, attack the enemy
             var player = battleUnits[turnIndex] as Player;

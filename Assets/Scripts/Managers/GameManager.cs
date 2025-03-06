@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject playergameObj;
 
     private Scene overworldScene;
+    private Vector2 overworldPosition = Vector2.zero;
 
     [Header("Random Encounter Data")]
     public float stepsTakenInOverworld = 0;
@@ -111,6 +112,10 @@ public class GameManager : MonoBehaviour
     {
         // get a "hook" for the scene to return to on battle conclusion
         overworldScene = SceneManager.GetActiveScene();
+
+        // set overworld return position
+        overworldPosition = playergameObj.transform.position;
+
         // move necessary objects to battle scene
         SceneManager.MoveGameObjectToScene(playergameObj, SceneManager.GetSceneByName("BattleScene"));
         SceneManager.MoveGameObjectToScene(transform.parent.gameObject, SceneManager.GetSceneByName("BattleScene"));
@@ -135,6 +140,8 @@ public class GameManager : MonoBehaviour
         SceneManager.SetActiveScene(overworldScene);
         // enable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(true);
+        // move player to original overworld position
+        playergameObj.transform.position = overworldPosition;
     }
 
     // Called from UpdateBattleState BattleManager (State Victory and Defeat)
