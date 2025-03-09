@@ -8,12 +8,16 @@ public class Player : BaseUnit
     public PlayerMovement movementScript;
     public PlayerAnimControl animationScript;
 
+    // Only needed by the player for now. If have multiple players might need to create BaseFriendly class
+    public int sp;
+
 
     void Start()
     {
         speed = 10;
         attack = 5;
         health = 20;
+        sp = 30;
 
         // subscribe to battle events
 
