@@ -5,6 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SpellDataSO", menuName = "ScriptableObjects/SpellDataSO")]
 public class SpellDataSO : ScriptableObject
 {
+    public string spellName;
     public int baseDamage;
     public elementType element;
     public targetType target;
