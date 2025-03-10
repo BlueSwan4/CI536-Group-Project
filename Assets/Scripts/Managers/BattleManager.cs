@@ -108,6 +108,7 @@ public class BattleManager : MonoBehaviour
             // set gui references to null
             fightButton = null;
             runButton = null;
+            spellButton = null;
             battleCaptionText = null;
 
             UpdateBattleState(BattleState.Inactive);
@@ -140,10 +141,12 @@ public class BattleManager : MonoBehaviour
                 // enable battle control gui elements
                 runButton.interactable = true;
                 fightButton.interactable = true;
+                spellButton.interactable = true;
                 break;
             case BattleState.EnemyTurn:
                 runButton.interactable = false;
                 fightButton.interactable = false;
+                spellButton.interactable = false;
                 HandleEnemyTurn(); // call this to go through the current enemy's turn
                 break;
             case BattleState.Victory:
@@ -269,9 +272,10 @@ public class BattleManager : MonoBehaviour
                 return;
             }
 
-            // disable fight / run buttons (no turning back now)
+            // disable fight / run buttons / spell buttons (no turning back now) prevents plaer being able to click after choosing one
             runButton.interactable = false;
             fightButton.interactable = false;
+            spellButton.interactable = false;
 
             Debug.Log("On player turn, carrying out movement");
             // we are on player turn, attack the enemy
