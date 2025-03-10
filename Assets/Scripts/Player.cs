@@ -64,7 +64,16 @@ public class Player : BaseUnit
         // we have selected an enemy
         // play attack anim
         animationScript.ShowPlayerAttack();
-        // start attack coroutine
-        StartCoroutine("UseBasicAttack");
+        // start attack coroutine or spell depending on chosen move
+        if (BattleManager.Instance.activeSpell == -1)
+            StartCoroutine("UseBasicAttack");
+        else
+            StartCoroutine("CastSpell");
+    }
+
+    public IEnumerator CastSpell(int spellIndex)
+    {
+        yield return new WaitForSeconds(attackDuration);
+        target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
     }
 }
