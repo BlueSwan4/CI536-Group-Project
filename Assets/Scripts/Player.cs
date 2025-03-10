@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build;
 using UnityEngine;
 
 public class Player : BaseUnit
@@ -11,7 +12,7 @@ public class Player : BaseUnit
     // Only needed by the player for now. If have multiple players might need to create BaseFriendly class
     public int sp;
 
-    public SpellDataSO spellSlotOne;
+    public List<SpellDataSO> playerSpells = new();
 
 
     void Start()
