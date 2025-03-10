@@ -42,6 +42,7 @@ public class BattleManager : MonoBehaviour
     public Button runButton;
     public Button spellButton;
     public Text battleCaptionText;
+    public GameObject spellsPanel;
 
     private void Awake()
     {
@@ -100,6 +101,10 @@ public class BattleManager : MonoBehaviour
             runButton.onClick.AddListener(FleeBattle);
 
             spellButton = GameObject.FindWithTag("SpellButton").GetComponent<Button>();
+            //spellButton
+
+            spellsPanel = GameObject.FindWithTag("SpellsPanel");
+            spellsPanel.SetActive(false); // disable on start
 
             UpdateBattleState(BattleState.StartBattle);
         }
@@ -163,7 +168,7 @@ public class BattleManager : MonoBehaviour
                 ClearBattleUnits();
                 BattleEndEvent.Invoke(); // GameManager
                 break;
-            case BattleState.SelectingEnemy:
+            case BattleState.SelectingEnemyBasic:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -256,8 +261,26 @@ public class BattleManager : MonoBehaviour
         // use this to add specific enemies (i.e. for story battles / bosses)
     }
 
+    public void EnableSpellSelection()
+    {
+        // enable the spells panel and update the text on the buttons to match the spell names
+        spellsPanel.SetActive(true);
+        List<Button> spellButtons = new();
+
+        for (int i = 0; i < playerUnits[0].playerSpells.Count; i++)
+        {
+            spellButtons.Add(spellsPanel.transform.GetChild(i).GetComponent<Button>());
+            spellButtons[i].GetComponentInChildren<Text>().text = playerUnits[0].playerSpells[i].name;
+        }
+    }
+
+    public void UseSpell(int spellIndex)
+    {
+
+    }
+
     // Connected to BattleCursor Update()
-    public void PlayerFight(int target)
+    public void PlayerFight(int target, bool hitAll)
     {
         // this is called once the enemy is selected
         // is subscribed to the EnemySelected event
@@ -317,7 +340,7 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSelectEnemy()
     {
-        UpdateBattleState(BattleState.SelectingEnemy);
+        UpdateBattleState(BattleState.SelectingEnemyBasic);
     }
 
     // Called every time a unit dies from BaseUnit
@@ -369,5 +392,5 @@ public enum BattleState
     Victory,
     Defeat,
     Inactive,
-    SelectingEnemy
+    SelectingEnemyBasic
 }
