@@ -11,6 +11,8 @@ public class Player : BaseUnit
     // Only needed by the player for now. If have multiple players might need to create BaseFriendly class
     public int sp;
 
+    public SpellDataSO spellSlotOne;
+
 
     void Start()
     {
@@ -22,8 +24,6 @@ public class Player : BaseUnit
         // subscribe to battle events
 
         GameManager.OnGameStateChanged += OnGameStateChanage;
-//TAKE OUT
-        BattleManager.BattleStateChange += OnBattleStateChanged;
     }
 
     // Update is called once per frame
@@ -43,25 +43,6 @@ public class Player : BaseUnit
                 break;
             case GameState.Fighting:
                 movementScript.DisableMovement();
-                break;
-        }
-    }
-//TAKE OUT
-    private void OnBattleStateChanged(BattleState newBattleState)
-    {
-        switch (newBattleState) 
-        {
-            case BattleState.StartBattle:
-                break;
-            case BattleState.Victory:
-                break;
-            case BattleState.PlayerTurn:
-                break;
-            case BattleState.EnemyTurn:
-                break;
-            case BattleState.Defeat:
-                break;
-            case BattleState.Inactive:
                 break;
         }
     }

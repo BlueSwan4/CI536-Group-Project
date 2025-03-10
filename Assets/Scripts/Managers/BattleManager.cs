@@ -40,6 +40,7 @@ public class BattleManager : MonoBehaviour
     [Header("GUI References")]
     public Button fightButton;
     public Button runButton;
+    public Button spellButton;
     public Text battleCaptionText;
 
     private void Awake()
@@ -97,6 +98,9 @@ public class BattleManager : MonoBehaviour
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
             runButton.onClick.AddListener(FleeBattle);
+
+            spellButton = GameObject.FindWithTag("SpellButton").GetComponent<Button>();
+
             UpdateBattleState(BattleState.StartBattle);
         }
         else
