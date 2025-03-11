@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Build;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Player : BaseUnit
 {
@@ -74,6 +75,18 @@ public class Player : BaseUnit
     public IEnumerator CastSpell(int spellIndex)
     {
         yield return new WaitForSeconds(attackDuration);
-        target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
+        if (playerSpells[spellIndex].target == SpellDataSO.targetType.single)
+            target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
+        else
+        {
+            // go through all enemy objects and call receive damage
+            for (int targetIndex = 0; targetIndex < BattleManager.Instance.enemyUnits.Count; targetIndex++)
+            {
+                BattleManager.Instance.enemyUnits[targetIndex].ReceieveDamage(playerSpells[spellIndex].baseDamage);
+            }
+        }
+
+        // raise turn end event
+        EndUnitTurn();
     }
 }
