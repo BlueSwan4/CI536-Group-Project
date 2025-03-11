@@ -69,11 +69,16 @@ public class Player : BaseUnit
         if (BattleManager.Instance.activeSpell == -1)
             StartCoroutine("UseBasicAttack");
         else
+        {
+            Debug.Log("WE LOVE CASTING SPELLS");
             StartCoroutine("CastSpell");
+        }
+            
     }
 
-    public IEnumerator CastSpell(int spellIndex)
+    public IEnumerator CastSpell()
     {
+        int spellIndex = BattleManager.Instance.activeSpell;
         yield return new WaitForSeconds(attackDuration);
         if (playerSpells[spellIndex].target == SpellDataSO.targetType.single)
             target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
@@ -87,6 +92,8 @@ public class Player : BaseUnit
         }
 
         // raise turn end event
+        target = null;
+        Debug.Log("Ending unit turn");
         EndUnitTurn();
     }
 }
