@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 
@@ -19,7 +21,7 @@ public class BattleManager : MonoBehaviour
     public List<Player> playerUnits = new List<Player>();
     public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract and 
 
-    [SerializeField] private int turnIndex = 0; // expose this to the inspector for debugging
+    [SerializeField] public int turnIndex { get; private set; } = 0; // expose this to the inspector for debugging
 
     // temporary prefab reference for the basic enemy
     // TODO: remove this once we've implemented more enemy types
@@ -32,10 +34,12 @@ public class BattleManager : MonoBehaviour
     [Header("Unit Positioning")]
     // single enemy (may want to use this for bosses for example
     public Transform centredPosition;
-    
+
     public Transform[] standardPositions = new Transform[4]; // positions for standard enemies
 
     public Transform playerPosition;
+
+    public int activeSpell { get; private set; } = -1; // Rob (2015), acc: 10/3/2025
 
     [Header("GUI References")]
     public Button fightButton;
@@ -101,9 +105,17 @@ public class BattleManager : MonoBehaviour
             runButton.onClick.AddListener(FleeBattle);
 
             spellButton = GameObject.FindWithTag("SpellButton").GetComponent<Button>();
-            //spellButton
+            spellButton.onClick.AddListener(EnableSpellSelection);
 
             spellsPanel = GameObject.FindWithTag("SpellsPanel");
+
+            // go through the spell buttons and attach the usespell method
+            for (int i = 0; i < spellsPanel.transform.childCount; i++)
+            {
+                spellsPanel.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(GetSpellCaster(i)); // use a helper function to prevent late binding (Martelli et al. 2010)
+            }
+
+
             spellsPanel.SetActive(false); // disable on start
 
             UpdateBattleState(BattleState.StartBattle);
@@ -169,6 +181,8 @@ public class BattleManager : MonoBehaviour
                 BattleEndEvent.Invoke(); // GameManager
                 break;
             case BattleState.SelectingEnemyBasic:
+                break;
+            case BattleState.SelectingEnemyWithSpell:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -263,20 +277,47 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSpellSelection()
     {
+        // check we are on player turn
+        if (battleUnits[turnIndex] is not Player)
+            return;
+
+        Player currentPlayer = battleUnits[turnIndex] as Player;
+
+        Debug.Log("Enabling spells");
         // enable the spells panel and update the text on the buttons to match the spell names
         spellsPanel.SetActive(true);
-        List<Button> spellButtons = new();
 
-        for (int i = 0; i < playerUnits[0].playerSpells.Count; i++)
+        Debug.Log("Current spells: " + currentPlayer.playerSpells.Count.ToString());
+
+        for (int i = 0; i < currentPlayer.playerSpells.Count; i++)
         {
-            spellButtons.Add(spellsPanel.transform.GetChild(i).GetComponent<Button>());
-            spellButtons[i].GetComponentInChildren<Text>().text = playerUnits[0].playerSpells[i].name;
+            Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
+            newBtn.GetComponentInChildren<Text>().text = currentPlayer.playerSpells[i].spellName;
+            newBtn.gameObject.SetActive(true);
         }
     }
 
     public void UseSpell(int spellIndex)
     {
+        Debug.Log("Using spell");
+        activeSpell = spellIndex;
 
+        Debug.Log("Set active spell as: " + activeSpell.ToString());
+
+        // disable all spell buttons
+        for (int i = 0; i < spellsPanel.transform.childCount; i++)
+        {
+            spellsPanel.transform.GetChild(i).gameObject.SetActive(false);
+        }
+
+        spellsPanel.SetActive(false);
+        UpdateBattleState(BattleState.SelectingEnemyWithSpell);
+    }
+
+    public UnityAction GetSpellCaster(int spellIndex)
+    {
+        // helper function to prevent late binding, based off of the StackOverflow answer by Alex Martelli et al. (2010), acc: 11/3/2025
+        return () => UseSpell(spellIndex); // we return a lambda function to allow data to be passed for the event (Senshi, 2014)
     }
 
     // Connected to BattleCursor Update()
@@ -305,6 +346,8 @@ public class BattleManager : MonoBehaviour
             var player = battleUnits[turnIndex] as Player;
 
             player.OnEnemySelected(target);
+            // remove active spell if we have one
+            activeSpell = -1;
         }
         else
         {
@@ -392,5 +435,6 @@ public enum BattleState
     Victory,
     Defeat,
     Inactive,
-    SelectingEnemyBasic
+    SelectingEnemyBasic,
+    SelectingEnemyWithSpell
 }
