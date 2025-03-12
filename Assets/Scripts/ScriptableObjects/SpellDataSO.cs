@@ -9,6 +9,7 @@ public class SpellDataSO : ScriptableObject
     public int baseDamage;
     public elementType element;
     public targetType target;
+    public int spCost;
 
 
     // Basic rock paper scissor weakness. Should change later

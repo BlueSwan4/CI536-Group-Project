@@ -21,7 +21,7 @@ public class Player : BaseUnit
         speed = 10;
         attack = 5;
         health = 20;
-        sp = 30;
+        sp = 10;
 
         // subscribe to battle events
 
@@ -98,6 +98,9 @@ public class Player : BaseUnit
                 BattleManager.Instance.enemyUnits[targetIndex].ReceieveDamage(playerSpells[spellIndex].baseDamage * multiplier);
             }
         }
+
+        // remove sp from player
+        sp -= playerSpells[spellIndex].spCost;
 
         // raise turn end event
         target = null;

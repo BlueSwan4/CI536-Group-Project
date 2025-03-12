@@ -326,6 +326,8 @@ public class BattleManager : MonoBehaviour
             Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
             newBtn.GetComponentInChildren<Text>().text = currentPlayer.playerSpells[i].spellName;
             newBtn.gameObject.SetActive(true);
+            // check if we have enough sp
+            newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
         }
     }
 
@@ -415,6 +417,8 @@ public class BattleManager : MonoBehaviour
     {
         // currently auto leave battle, with no reward
         ClearBattleUnits();
+        spellsPanel.SetActive(true);
+        UpdateBattleState(BattleState.Inactive);
         GameManager.Instance.UpdateGameState(GameState.Wandering);
 
         // TODO: transition back to overworld
@@ -422,6 +426,8 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSelectEnemy()
     {
+        // hide spell panel if necessary
+        spellsPanel.SetActive(false);
         UpdateBattleState(BattleState.SelectingEnemyBasic);
     }
 
