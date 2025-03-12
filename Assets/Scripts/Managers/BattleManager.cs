@@ -173,7 +173,8 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear battle unit array
                 ClearBattleUnits();
-
+                // reset spell panel active state
+                spellsPanel.SetActive(true);
                 // raise battle won event (GameManager);
                 BattleEndEvent.Invoke();
                 break;
@@ -181,6 +182,7 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear unit lists
                 ClearBattleUnits();
+                spellsPanel.SetActive(true);
                 BattleEndEvent.Invoke(); // GameManager
                 break;
             case BattleState.SelectingEnemyBasic:
@@ -244,19 +246,27 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
-            if (turnIndex >= battleUnits.Count)
+            // check if enemies are dead
+            if (enemyUnits.Count == 0)
             {
-                turnIndex = 0;
+                UpdateBattleState(BattleState.Victory);
             }
+            else
+            {
+                if (turnIndex >= battleUnits.Count)
+                {
+                    turnIndex = 0;
+                }
 
-            // update battle state to determine next turn
-            if (battleUnits[turnIndex] is BaseEnemy)
-            {
-                UpdateBattleState(BattleState.EnemyTurn);
-            }
-            else if (battleUnits[turnIndex] is Player)
-            {
-                UpdateBattleState(BattleState.PlayerTurn);
+                // update battle state to determine next turn
+                if (battleUnits[turnIndex] is BaseEnemy)
+                {
+                    UpdateBattleState(BattleState.EnemyTurn);
+                }
+                else if (battleUnits[turnIndex] is Player)
+                {
+                    UpdateBattleState(BattleState.PlayerTurn);
+                }
             }
         }
     }
