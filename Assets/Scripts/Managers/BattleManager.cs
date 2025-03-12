@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,7 +20,9 @@ public class BattleManager : MonoBehaviour
 
     // lists for storing player and enemy uunits seperately - these are for targeting
     public List<Player> playerUnits = new List<Player>();
-    public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract and 
+    public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract
+
+    public List<BaseEnemy> deadEnemyUnits = new(); // use this to store references to dead enemies
 
     [SerializeField] public int turnIndex { get; private set; } = 0; // expose this to the inspector for debugging
 
@@ -224,6 +227,23 @@ public class BattleManager : MonoBehaviour
         // check if all enemy units are dead
         if (battleUnits.Count > 0)
         {
+            // update battle units to account for dead enemies
+            for (int enemyIndex = enemyUnits.Count - 1; enemyIndex >= 0; enemyIndex--)
+            {
+                // go through list backwards to avoid issues
+                if (deadEnemyUnits.Contains(enemyUnits[enemyIndex]))
+                {
+                    var unit = enemyUnits[enemyIndex];
+                    // remove the unit
+                    deadEnemyUnits.Remove(unit);
+                    // remove from battle units and enemy units array
+                    battleUnits.Remove(unit);
+                    enemyUnits.Remove(unit);
+
+                    Destroy(unit.gameObject); // destroy the game object
+                }
+            }
+
             if (turnIndex >= battleUnits.Count)
             {
                 turnIndex = 0;
@@ -268,6 +288,8 @@ public class BattleManager : MonoBehaviour
             battleUnits.Add(enemy.GetComponent<BaseEnemy>());
             enemyUnits.Add(enemy.GetComponent<BaseEnemy>());
         }
+
+        Debug.Log("Rolled for " + enemyUnits.Count + " enemies");
     }
 
     private void RollEnemiesScripted()
@@ -362,9 +384,16 @@ public class BattleManager : MonoBehaviour
             if (battleUnits[turnIndex] is not BaseEnemy)
                 return;
 
-            var enemy = battleUnits[turnIndex] as BaseEnemy;
-
-            enemy.UseTurn();
+            // if we are dead skip to next turn
+            if (deadEnemyUnits.Contains(battleUnits[turnIndex] as BaseEnemy))
+            {
+                BaseUnit.EndUnitTurn();
+            }
+            else
+            {
+                var enemy = battleUnits[turnIndex] as BaseEnemy;
+                enemy.UseTurn();
+            }
         }
         else
         {
@@ -392,18 +421,9 @@ public class BattleManager : MonoBehaviour
         // check unit type
         if (deadUnit is BaseEnemy)
         {
-            // enemy died
-            enemyUnits.Remove(deadUnit as BaseEnemy);
-            battleUnits.Remove(deadUnit);
-
-            Destroy(deadUnit.gameObject);
-
-            // check amount of remaining enemies
-            if (!(enemyUnits.Count > 0))
-            {
-                // battle is won
-                UpdateBattleState(BattleState.Victory);
-            }
+            // enemy died, add to dead units list
+            deadEnemyUnits.Add(deadUnit as BaseEnemy);
+            
         }
         else if (deadUnit is Player)
         {

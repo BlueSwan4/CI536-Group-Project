@@ -84,16 +84,18 @@ public class Player : BaseUnit
             target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
         else
         {
+            Debug.Log("Enemies to target: " + BattleManager.Instance.enemyUnits.Count);
             // go through all enemy objects and call receive damage
             for (int targetIndex = 0; targetIndex < BattleManager.Instance.enemyUnits.Count; targetIndex++)
             {
+                Debug.Log("Targeting enemy at index: " + targetIndex);
                 BattleManager.Instance.enemyUnits[targetIndex].ReceieveDamage(playerSpells[spellIndex].baseDamage);
             }
         }
 
         // raise turn end event
         target = null;
-        Debug.Log("Ending unit turn");
+        Debug.Log("Ending player turn");
         EndUnitTurn();
     }
 }
