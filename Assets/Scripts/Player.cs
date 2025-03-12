@@ -78,18 +78,24 @@ public class Player : BaseUnit
 
     public IEnumerator CastSpell()
     {
+        int multiplier = 1;
         int spellIndex = BattleManager.Instance.activeSpell;
         yield return new WaitForSeconds(attackDuration);
         if (playerSpells[spellIndex].target == SpellDataSO.targetType.single)
-            target.ReceieveDamage(playerSpells[spellIndex].baseDamage);
+        {
+            if (target.typeWeaknesses.Contains(playerSpells[spellIndex].element)) multiplier = 2;
+            target.ReceieveDamage(playerSpells[spellIndex].baseDamage * multiplier);
+        }  
         else
         {
             Debug.Log("Enemies to target: " + BattleManager.Instance.enemyUnits.Count);
             // go through all enemy objects and call receive damage
             for (int targetIndex = 0; targetIndex < BattleManager.Instance.enemyUnits.Count; targetIndex++)
             {
-                Debug.Log("Targeting enemy at index: " + targetIndex);
-                BattleManager.Instance.enemyUnits[targetIndex].ReceieveDamage(playerSpells[spellIndex].baseDamage);
+                if (target.typeWeaknesses.Contains(playerSpells[spellIndex].element)) multiplier = 2;
+                else multiplier = 1;
+                    Debug.Log("Targeting enemy at index: " + targetIndex);
+                BattleManager.Instance.enemyUnits[targetIndex].ReceieveDamage(playerSpells[spellIndex].baseDamage * multiplier);
             }
         }
 

@@ -16,7 +16,8 @@ public class SpellDataSO : ScriptableObject
     {
         fire,
         water,
-        grass
+        grass,
+        none
     }
 
     public enum targetType
