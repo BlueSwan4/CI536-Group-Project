@@ -11,7 +11,7 @@ public class BattleCursor : MonoBehaviour
     [SerializeField]private bool selectingEnemy = false;
 
     // event for enemy selection - raised when enemy is selected
-    public static event Action<int> EnemySelected;
+    public static event Action<int, bool> EnemySelected;
     [SerializeField]private int selectionIndex = 0;
 
     // Start is called before the first frame update
@@ -25,27 +25,41 @@ public class BattleCursor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bool targetingSingle = true;
         if (selectingEnemy)
         {
             // movement - use wasd for selecting enemies
             // w / up - move cursor up
             // s / down - move cursor down
 
-            if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                // decrement index - if we go under 0 wrap it round to end of enemies
-                selectionIndex--;
+            // check there is no multi-target spell active
 
-                if (selectionIndex < 0)
-                    selectionIndex = BattleManager.Instance.enemyUnits.Count - 1;
+            if (BattleManager.Instance.activeSpell != -1)
+            {
+                // we have an active spell
+                // check if it's multihit
+                Player currentPlayer = BattleManager.Instance.battleUnits[BattleManager.Instance.turnIndex] as Player;
+                targetingSingle = currentPlayer.playerSpells[BattleManager.Instance.activeSpell].target == SpellDataSO.targetType.single;
             }
-            else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                // increment index as we go down - if we go over the limit wrap to 0
-                selectionIndex++;
 
-                if (selectionIndex >= BattleManager.Instance.enemyUnits.Count)
-                    selectionIndex = 0;
+            if (targetingSingle)
+            {
+                if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
+                {
+                    // decrement index - if we go under 0 wrap it round to end of enemies
+                    selectionIndex--;
+
+                    if (selectionIndex < 0)
+                        selectionIndex = BattleManager.Instance.enemyUnits.Count - 1;
+                }
+                else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
+                {
+                    // increment index as we go down - if we go over the limit wrap to 0
+                    selectionIndex++;
+
+                    if (selectionIndex >= BattleManager.Instance.enemyUnits.Count)
+                        selectionIndex = 0;
+                }
             }
 
             // move cursor to chosen enemy pos
@@ -56,7 +70,7 @@ public class BattleCursor : MonoBehaviour
             {
                 // we've selected an enemy, raise the event
                 Debug.Log("Enemy selected at index: " + selectionIndex);
-                EnemySelected?.Invoke(selectionIndex);
+                EnemySelected?.Invoke(selectionIndex, targetingSingle);
                 // disable cursor
                 cursorSprite.enabled = false;
                 selectingEnemy = false;
@@ -73,12 +87,18 @@ public class BattleCursor : MonoBehaviour
         // battle state change event listener
         switch (newState) 
         {
-            case BattleState.SelectingEnemy:
+            case BattleState.SelectingEnemyBasic:
                 // enable sprite and movement
                 cursorSprite.enabled = true;
                 selectingEnemy = true;
                 // set position to that of 0th enemy
-                transform.position = BattleManager.Instance.enemyUnits[0].transform.position  + new Vector3(-1, 0, 0);
+                transform.position = BattleManager.Instance.enemyUnits[0].transform.position + new Vector3(-1, 0, 0);
+                break;
+            case BattleState.SelectingEnemyWithSpell:
+                cursorSprite.enabled = true;
+                selectingEnemy = true;
+                // set position to that of 0th enemy
+                transform.position = BattleManager.Instance.enemyUnits[0].transform.position + new Vector3(-1, 0, 0);
                 break;
             default:
                 cursorSprite.enabled = false;

@@ -5,9 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SpellDataSO", menuName = "ScriptableObjects/SpellDataSO")]
 public class SpellDataSO : ScriptableObject
 {
+    public string spellName;
     public int baseDamage;
     public elementType element;
     public targetType target;
+    public int spCost;
 
 
     // Basic rock paper scissor weakness. Should change later
@@ -15,7 +17,8 @@ public class SpellDataSO : ScriptableObject
     {
         fire,
         water,
-        grass
+        grass,
+        none
     }
 
     public enum targetType
