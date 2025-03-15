@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject playergameObj;
 
     private Scene overworldScene;
+    private Vector2 overworldPosition = Vector2.zero;
 
     [Header("Random Encounter Data")]
     public float stepsTakenInOverworld = 0;
@@ -65,11 +66,13 @@ public class GameManager : MonoBehaviour
                     TransitionToOverworldFromBattle();
 
                 stepsTakenInOverworld = 0;
+                //AudioManager.Instance.PlayMusic("OverworldMusic");
                 break;
             case GameState.Fighting:
                 // Activate the BattleManager
                 // move to battle scene
                 TransitionToBattleFromOverworld();
+                //AudioManager.Instance.PlayMusic("BattleMusic");
                 break;
         }
 
@@ -114,6 +117,10 @@ public class GameManager : MonoBehaviour
     {
         // get a "hook" for the scene to return to on battle conclusion
         overworldScene = SceneManager.GetActiveScene();
+
+        // set overworld return position
+        overworldPosition = playergameObj.transform.position;
+
         // move necessary objects to battle scene
         SceneManager.MoveGameObjectToScene(playergameObj, SceneManager.GetSceneByName("BattleScene"));
         SceneManager.MoveGameObjectToScene(transform.parent.gameObject, SceneManager.GetSceneByName("BattleScene"));
@@ -147,6 +154,9 @@ public class GameManager : MonoBehaviour
         //activating the player camera and deactivating the battle camera will automatically change the camera position and settings
         battleCamera.SetActive(false);
         playerCamera.SetActive(true);
+
+        // move player to original overworld position
+        playergameObj.transform.position = overworldPosition;
     }
 
     // Called from UpdateBattleState BattleManager (State Victory and Defeat)

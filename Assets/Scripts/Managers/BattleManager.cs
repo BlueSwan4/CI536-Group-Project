@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
@@ -19,9 +22,11 @@ public class BattleManager : MonoBehaviour
 
     // lists for storing player and enemy uunits seperately - these are for targeting
     public List<Player> playerUnits = new List<Player>();
-    public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract and 
+    public List<BaseEnemy> enemyUnits = new List<BaseEnemy>(); // NOTE: we may need to change the BaseUnit class to be abstract
 
-    [SerializeField] private int turnIndex = 0; // expose this to the inspector for debugging
+    public List<BaseEnemy> deadEnemyUnits = new(); // use this to store references to dead enemies
+
+    [SerializeField] public int turnIndex { get; private set; } = 0; // expose this to the inspector for debugging
 
     // temporary prefab reference for the basic enemy
     // TODO: remove this once we've implemented more enemy types
@@ -34,14 +39,17 @@ public class BattleManager : MonoBehaviour
     [Header("Unit Positioning")]
     // single enemy (may want to use this for bosses for example
     public Transform centredPosition;
-    
+
     public Transform[] standardPositions = new Transform[4]; // positions for standard enemies
 
     public Transform playerPosition;
 
+    public int activeSpell { get; private set; } = -1; // Rob (2015), acc: 10/3/2025
+
     [Header("GUI References")]
     public Button fightButton;
     public Button runButton;
+    
     public TextMeshProUGUI battleCaptionText;
 
 
@@ -55,8 +63,8 @@ public class BattleManager : MonoBehaviour
 
     //bandage fix so the exit transition works
 
-
-
+    public Button spellButton;
+    public GameObject spellsPanel;
 
 
     private void Awake()
@@ -115,7 +123,25 @@ public class BattleManager : MonoBehaviour
 
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
+
             runButton.onClick.AddListener(OpenFleeSelection);
+
+
+
+            spellButton = GameObject.FindWithTag("SpellButton").GetComponent<Button>();
+            spellButton.onClick.AddListener(EnableSpellSelection);
+
+            spellsPanel = GameObject.FindWithTag("SpellsPanel");
+
+            // go through the spell buttons and attach the usespell method
+            for (int i = 0; i < spellsPanel.transform.childCount; i++)
+            {
+                spellsPanel.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(GetSpellCaster(i)); // use a helper function to prevent late binding (Martelli et al. 2010)
+            }
+
+
+            spellsPanel.SetActive(false); // disable on start
+
             UpdateBattleState(BattleState.StartBattle);
 
             //find the conformation buttons and deactivate them
@@ -144,6 +170,7 @@ public class BattleManager : MonoBehaviour
             // set gui references to null
             fightButton = null;
             runButton = null;
+            spellButton = null;
             battleCaptionText = null;
 
             UpdateBattleState(BattleState.Inactive);
@@ -176,17 +203,20 @@ public class BattleManager : MonoBehaviour
                 // enable battle control gui elements
                 runButton.interactable = true;
                 fightButton.interactable = true;
+                spellButton.interactable = true;
                 break;
             case BattleState.EnemyTurn:
                 runButton.interactable = false;
                 fightButton.interactable = false;
+                spellButton.interactable = false;
                 HandleEnemyTurn(); // call this to go through the current enemy's turn
                 break;
             case BattleState.Victory:
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear battle unit array
                 ClearBattleUnits();
-
+                // reset spell panel active state
+                spellsPanel.SetActive(true);
                 // raise battle won event (GameManager);
                 BattleEndEvent.Invoke();
                 break;
@@ -194,9 +224,12 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear unit lists
                 ClearBattleUnits();
+                spellsPanel.SetActive(true);
                 BattleEndEvent.Invoke(); // GameManager
                 break;
-            case BattleState.SelectingEnemy:
+            case BattleState.SelectingEnemyBasic:
+                break;
+            case BattleState.SelectingEnemyWithSpell:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -238,19 +271,44 @@ public class BattleManager : MonoBehaviour
         // check if all enemy units are dead
         if (battleUnits.Count > 0)
         {
-            if (turnIndex >= battleUnits.Count)
+            // update battle units to account for dead enemies
+            for (int enemyIndex = enemyUnits.Count - 1; enemyIndex >= 0; enemyIndex--)
             {
-                turnIndex = 0;
+                // go through list backwards to avoid issues
+                if (deadEnemyUnits.Contains(enemyUnits[enemyIndex]))
+                {
+                    var unit = enemyUnits[enemyIndex];
+                    // remove the unit
+                    deadEnemyUnits.Remove(unit);
+                    // remove from battle units and enemy units array
+                    battleUnits.Remove(unit);
+                    enemyUnits.Remove(unit);
+
+                    Destroy(unit.gameObject); // destroy the game object
+                }
             }
 
-            // update battle state to determine next turn
-            if (battleUnits[turnIndex] is BaseEnemy)
+            // check if enemies are dead
+            if (enemyUnits.Count == 0)
             {
-                UpdateBattleState(BattleState.EnemyTurn);
+                UpdateBattleState(BattleState.Victory);
             }
-            else if (battleUnits[turnIndex] is Player)
+            else
             {
-                UpdateBattleState(BattleState.PlayerTurn);
+                if (turnIndex >= battleUnits.Count)
+                {
+                    turnIndex = 0;
+                }
+
+                // update battle state to determine next turn
+                if (battleUnits[turnIndex] is BaseEnemy)
+                {
+                    UpdateBattleState(BattleState.EnemyTurn);
+                }
+                else if (battleUnits[turnIndex] is Player)
+                {
+                    UpdateBattleState(BattleState.PlayerTurn);
+                }
             }
         }
     }
@@ -282,6 +340,8 @@ public class BattleManager : MonoBehaviour
             battleUnits.Add(enemy.GetComponent<BaseEnemy>());
             enemyUnits.Add(enemy.GetComponent<BaseEnemy>());
         }
+
+        Debug.Log("Rolled for " + enemyUnits.Count + " enemies");
     }
 
     private void RollEnemiesScripted()
@@ -289,8 +349,55 @@ public class BattleManager : MonoBehaviour
         // use this to add specific enemies (i.e. for story battles / bosses)
     }
 
+    public void EnableSpellSelection()
+    {
+        // check we are on player turn
+        if (battleUnits[turnIndex] is not Player)
+            return;
+
+        Player currentPlayer = battleUnits[turnIndex] as Player;
+
+        Debug.Log("Enabling spells");
+        // enable the spells panel and update the text on the buttons to match the spell names
+        spellsPanel.SetActive(true);
+
+        Debug.Log("Current spells: " + currentPlayer.playerSpells.Count.ToString());
+
+        for (int i = 0; i < currentPlayer.playerSpells.Count; i++)
+        {
+            Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
+            newBtn.GetComponentInChildren<Text>().text = currentPlayer.playerSpells[i].spellName;
+            newBtn.gameObject.SetActive(true);
+            // check if we have enough sp
+            newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
+        }
+    }
+
+    public void UseSpell(int spellIndex)
+    {
+        Debug.Log("Using spell");
+        activeSpell = spellIndex;
+
+        Debug.Log("Set active spell as: " + activeSpell.ToString());
+
+        // disable all spell buttons
+        for (int i = 0; i < spellsPanel.transform.childCount; i++)
+        {
+            spellsPanel.transform.GetChild(i).gameObject.SetActive(false);
+        }
+
+        spellsPanel.SetActive(false);
+        UpdateBattleState(BattleState.SelectingEnemyWithSpell);
+    }
+
+    public UnityAction GetSpellCaster(int spellIndex)
+    {
+        // helper function to prevent late binding, based off of the StackOverflow answer by Alex Martelli et al. (2010), acc: 11/3/2025
+        return () => UseSpell(spellIndex); // we return a lambda function to allow data to be passed for the event (Senshi, 2014)
+    }
+
     // Connected to BattleCursor Update()
-    public void PlayerFight(int target)
+    public void PlayerFight(int target, bool hitAll)
     {
         // this is called once the enemy is selected
         // is subscribed to the EnemySelected event
@@ -305,11 +412,18 @@ public class BattleManager : MonoBehaviour
                 return;
             }
 
+            // disable fight / run buttons / spell buttons (no turning back now) prevents plaer being able to click after choosing one
+            runButton.interactable = false;
+            fightButton.interactable = false;
+            spellButton.interactable = false;
+
             Debug.Log("On player turn, carrying out movement");
             // we are on player turn, attack the enemy
             var player = battleUnits[turnIndex] as Player;
 
             player.OnEnemySelected(target);
+            // remove active spell if we have one
+            activeSpell = -1;
         }
         else
         {
@@ -324,9 +438,16 @@ public class BattleManager : MonoBehaviour
             if (battleUnits[turnIndex] is not BaseEnemy)
                 return;
 
-            var enemy = battleUnits[turnIndex] as BaseEnemy;
-
-            enemy.UseTurn();
+            // if we are dead skip to next turn
+            if (deadEnemyUnits.Contains(battleUnits[turnIndex] as BaseEnemy))
+            {
+                BaseUnit.EndUnitTurn();
+            }
+            else
+            {
+                var enemy = battleUnits[turnIndex] as BaseEnemy;
+                enemy.UseTurn();
+            }
         }
         else
         {
@@ -378,6 +499,8 @@ public class BattleManager : MonoBehaviour
 
         // currently auto leave battle, with no reward
         ClearBattleUnits();
+        spellsPanel.SetActive(true);
+        UpdateBattleState(BattleState.Inactive);
         GameManager.Instance.UpdateGameState(GameState.Wandering);
 
         // TODO: transition back to overworld
@@ -385,7 +508,9 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSelectEnemy()
     {
-        UpdateBattleState(BattleState.SelectingEnemy);
+        // hide spell panel if necessary
+        spellsPanel.SetActive(false);
+        UpdateBattleState(BattleState.SelectingEnemyBasic);
     }
 
     // Called every time a unit dies from BaseUnit
@@ -394,18 +519,9 @@ public class BattleManager : MonoBehaviour
         // check unit type
         if (deadUnit is BaseEnemy)
         {
-            // enemy died
-            enemyUnits.Remove(deadUnit as BaseEnemy);
-            battleUnits.Remove(deadUnit);
-
-            Destroy(deadUnit.gameObject);
-
-            // check amount of remaining enemies
-            if (!(enemyUnits.Count > 0))
-            {
-                // battle is won
-                UpdateBattleState(BattleState.Victory);
-            }
+            // enemy died, add to dead units list
+            deadEnemyUnits.Add(deadUnit as BaseEnemy);
+            
         }
         else if (deadUnit is Player)
         {
@@ -437,5 +553,6 @@ public enum BattleState
     Victory,
     Defeat,
     Inactive,
-    SelectingEnemy
+    SelectingEnemyBasic,
+    SelectingEnemyWithSpell
 }
