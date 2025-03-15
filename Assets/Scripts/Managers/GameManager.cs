@@ -26,6 +26,9 @@ public class GameManager : MonoBehaviour
     // Not used at the moment, IMPLEMENT LATER
     public bool inSafeArea = false; // flag to limit encounters to "unsafe" areas
 
+    public GameObject battleCamera; //for transitioning into the battle camera
+    public GameObject playerCamera; 
+
 
     // TODO: change to don't destoy on load when we have extra game areas outside of the original and battle area
     void Awake()
@@ -128,6 +131,11 @@ public class GameManager : MonoBehaviour
         root.rootObject.SetActive(true);
         // disable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(false);
+
+
+        //activating the battle camera and deactivating the player camera will automatically change the camera position and settings
+        battleCamera.SetActive(true);
+        playerCamera.SetActive(false); 
     }
 
     private void TransitionToOverworldFromBattle()
@@ -142,6 +150,11 @@ public class GameManager : MonoBehaviour
         SceneManager.SetActiveScene(overworldScene);
         // enable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(true);
+
+        //activating the player camera and deactivating the battle camera will automatically change the camera position and settings
+        battleCamera.SetActive(false);
+        playerCamera.SetActive(true);
+
         // move player to original overworld position
         playergameObj.transform.position = overworldPosition;
     }
@@ -152,6 +165,8 @@ public class GameManager : MonoBehaviour
         // event handler for battle end
         // for now we just return to the overworld
         UpdateGameState(GameState.Wandering);
+
+
     }
 
     private void OnDestroy()
