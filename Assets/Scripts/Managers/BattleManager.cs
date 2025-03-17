@@ -149,6 +149,7 @@ public class BattleManager : MonoBehaviour
             confirmSelection = GameObject.FindWithTag("ConfirmSelection").GetComponent<Button>();
             rejectSelection = GameObject.FindWithTag("RejectSelection").GetComponent<Button>();
 
+
             rejectSelection.gameObject.SetActive(false);
 
             confirmSelection.gameObject.SetActive(false);
@@ -216,7 +217,7 @@ public class BattleManager : MonoBehaviour
                 // clear battle unit array
                 ClearBattleUnits();
                 // reset spell panel active state
-                spellsPanel.SetActive(true);
+                SetUpForNextEncounter();
                 // raise battle won event (GameManager);
                 BattleEndEvent.Invoke();
                 break;
@@ -224,7 +225,7 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear unit lists
                 ClearBattleUnits();
-                spellsPanel.SetActive(true);
+                SetUpForNextEncounter();
                 BattleEndEvent.Invoke(); // GameManager
                 break;
             case BattleState.SelectingEnemy:
@@ -249,6 +250,14 @@ public class BattleManager : MonoBehaviour
                 UpdateBattleState(BattleState.EnemyTurn);
             }
         }
+    }
+
+    private void SetUpForNextEncounter()
+    {
+        spellsPanel.SetActive(true);
+        battleCaptionText.SetText(" ");
+        rejectSelection.gameObject.SetActive(true);
+        confirmSelection.gameObject.SetActive(true);
     }
 
     public void UpdateTurnOrder()
@@ -459,6 +468,16 @@ public class BattleManager : MonoBehaviour
 
     public void OpenFleeSelection()
     {
+        UpdateBattleState(BattleState.PlayerTurn); // in case we are in the enemy selection state
+        // also disable the spell buttons and panel
+
+        for (int i = 0; i < spellsPanel.transform.childCount; i++)
+        {
+            spellsPanel.transform.GetChild(i).gameObject.SetActive(false);
+        }
+
+        spellsPanel.SetActive(false);
+
         battleCaptionText.text = " are you sure you want to flee? ";
 
         // re enable the selection buttons
@@ -467,9 +486,8 @@ public class BattleManager : MonoBehaviour
         confirmSelection.gameObject.SetActive(true);
 
         //add listeners
-        rejectSelection.onClick.AddListener(CloseFleeSelection);
-        confirmSelection.onClick.AddListener(FleeBattle); 
-
+        rejectSelection.onClick.AddListener(CloseFleeSelection); // moved this here as the listeners only need to be added when the battle starts
+        confirmSelection.onClick.AddListener(FleeBattle);
     }
 
     public void CloseFleeSelection()
