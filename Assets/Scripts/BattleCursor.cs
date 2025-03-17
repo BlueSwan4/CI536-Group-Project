@@ -79,6 +79,12 @@ public class BattleCursor : MonoBehaviour
                 // reset cursor pos
                 selectionIndex = 0;
             }
+
+            if (Input.GetKeyUp(KeyCode.X))
+            {
+                // go back
+                BattleManager.Instance.CloseEnemySelection();
+            }
         }
     }
 
@@ -88,14 +94,8 @@ public class BattleCursor : MonoBehaviour
         // battle state change event listener
         switch (newState) 
         {
-            case BattleState.SelectingEnemyBasic:
+            case BattleState.SelectingEnemy:
                 // enable sprite and movement
-                cursorSprite.enabled = true;
-                selectingEnemy = true;
-                // set position to that of 0th enemy
-                transform.position = BattleManager.Instance.enemyUnits[0].transform.position + new Vector3(-1, 0, 0);
-                break;
-            case BattleState.SelectingEnemyWithSpell:
                 cursorSprite.enabled = true;
                 selectingEnemy = true;
                 // set position to that of 0th enemy

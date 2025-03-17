@@ -149,6 +149,7 @@ public class BattleManager : MonoBehaviour
             confirmSelection = GameObject.FindWithTag("ConfirmSelection").GetComponent<Button>();
             rejectSelection = GameObject.FindWithTag("RejectSelection").GetComponent<Button>();
 
+
             rejectSelection.gameObject.SetActive(false);
 
             confirmSelection.gameObject.SetActive(false);
@@ -216,7 +217,7 @@ public class BattleManager : MonoBehaviour
                 // clear battle unit array
                 ClearBattleUnits();
                 // reset spell panel active state
-                spellsPanel.SetActive(true);
+                SetUpForNextEncounter();
                 // raise battle won event (GameManager);
                 BattleEndEvent.Invoke();
                 break;
@@ -224,12 +225,10 @@ public class BattleManager : MonoBehaviour
                 // Not necessarily right place, but should change game state at some point after fight finished
                 // clear unit lists
                 ClearBattleUnits();
-                spellsPanel.SetActive(true);
+                SetUpForNextEncounter();
                 BattleEndEvent.Invoke(); // GameManager
                 break;
-            case BattleState.SelectingEnemyBasic:
-                break;
-            case BattleState.SelectingEnemyWithSpell:
+            case BattleState.SelectingEnemy:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -251,6 +250,14 @@ public class BattleManager : MonoBehaviour
                 UpdateBattleState(BattleState.EnemyTurn);
             }
         }
+    }
+
+    private void SetUpForNextEncounter()
+    {
+        spellsPanel.SetActive(true);
+        battleCaptionText.SetText(" ");
+        rejectSelection.gameObject.SetActive(true);
+        confirmSelection.gameObject.SetActive(true);
     }
 
     public void UpdateTurnOrder()
@@ -360,13 +367,15 @@ public class BattleManager : MonoBehaviour
         Debug.Log("Enabling spells");
         // enable the spells panel and update the text on the buttons to match the spell names
         spellsPanel.SetActive(true);
+        // update caption text
+        battleCaptionText.SetText("Select a Spell");
 
         Debug.Log("Current spells: " + currentPlayer.playerSpells.Count.ToString());
 
         for (int i = 0; i < currentPlayer.playerSpells.Count; i++)
         {
             Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
-            newBtn.GetComponentInChildren<Text>().text = currentPlayer.playerSpells[i].spellName;
+            newBtn.GetComponentInChildren<TextMeshProUGUI>().SetText(currentPlayer.playerSpells[i].spellName);
             newBtn.gameObject.SetActive(true);
             // check if we have enough sp
             newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
@@ -387,7 +396,7 @@ public class BattleManager : MonoBehaviour
         }
 
         spellsPanel.SetActive(false);
-        UpdateBattleState(BattleState.SelectingEnemyWithSpell);
+        UpdateBattleState(BattleState.SelectingEnemy);
     }
 
     public UnityAction GetSpellCaster(int spellIndex)
@@ -459,6 +468,16 @@ public class BattleManager : MonoBehaviour
 
     public void OpenFleeSelection()
     {
+        UpdateBattleState(BattleState.PlayerTurn); // in case we are in the enemy selection state
+        // also disable the spell buttons and panel
+
+        for (int i = 0; i < spellsPanel.transform.childCount; i++)
+        {
+            spellsPanel.transform.GetChild(i).gameObject.SetActive(false);
+        }
+
+        spellsPanel.SetActive(false);
+
         battleCaptionText.text = " are you sure you want to flee? ";
 
         // re enable the selection buttons
@@ -467,9 +486,8 @@ public class BattleManager : MonoBehaviour
         confirmSelection.gameObject.SetActive(true);
 
         //add listeners
-        rejectSelection.onClick.AddListener(CloseFleeSelection);
-        confirmSelection.onClick.AddListener(FleeBattle); 
-
+        rejectSelection.onClick.AddListener(CloseFleeSelection); // moved this here as the listeners only need to be added when the battle starts
+        confirmSelection.onClick.AddListener(FleeBattle);
     }
 
     public void CloseFleeSelection()
@@ -481,6 +499,19 @@ public class BattleManager : MonoBehaviour
         confirmSelection.gameObject.SetActive(false);
     }
 
+    public void CloseSpellSelection()
+    {
+        battleCaptionText.SetText(" ");
+        spellsPanel.SetActive(false);
+    }
+
+    public void CloseEnemySelection()
+    {
+        // call closespellselection in case we are selecting a spell target
+        CloseSpellSelection();
+        UpdateBattleState(BattleState.PlayerTurn);
+    }
+
     public void FleeBattle()
     {
         //fade out
@@ -489,8 +520,6 @@ public class BattleManager : MonoBehaviour
 
         //THIS IS A BANDAGE FIX, i WILL ASK ABOUT THIS LATER
         StartCoroutine(ExitBattle());
-
-
     }
 
     IEnumerator ExitBattle()
@@ -510,7 +539,7 @@ public class BattleManager : MonoBehaviour
     {
         // hide spell panel if necessary
         spellsPanel.SetActive(false);
-        UpdateBattleState(BattleState.SelectingEnemyBasic);
+        UpdateBattleState(BattleState.SelectingEnemy);
     }
 
     // Called every time a unit dies from BaseUnit
@@ -553,6 +582,5 @@ public enum BattleState
     Victory,
     Defeat,
     Inactive,
-    SelectingEnemyBasic,
-    SelectingEnemyWithSpell
+    SelectingEnemy
 }
