@@ -79,6 +79,12 @@ public class BattleCursor : MonoBehaviour
                 // reset cursor pos
                 selectionIndex = 0;
             }
+
+            if (Input.GetKeyUp(KeyCode.X))
+            {
+                // go back
+                BattleManager.Instance.CloseEnemySelection();
+            }
         }
     }
 

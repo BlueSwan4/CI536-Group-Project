@@ -366,7 +366,7 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < currentPlayer.playerSpells.Count; i++)
         {
             Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
-            newBtn.GetComponentInChildren<Text>().text = currentPlayer.playerSpells[i].spellName;
+            newBtn.GetComponentInChildren<TextMeshProUGUI>().SetText(currentPlayer.playerSpells[i].spellName);
             newBtn.gameObject.SetActive(true);
             // check if we have enough sp
             newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
@@ -502,8 +502,6 @@ public class BattleManager : MonoBehaviour
 
         //THIS IS A BANDAGE FIX, i WILL ASK ABOUT THIS LATER
         StartCoroutine(ExitBattle());
-
-
     }
 
     IEnumerator ExitBattle()
