@@ -227,9 +227,7 @@ public class BattleManager : MonoBehaviour
                 spellsPanel.SetActive(true);
                 BattleEndEvent.Invoke(); // GameManager
                 break;
-            case BattleState.SelectingEnemyBasic:
-                break;
-            case BattleState.SelectingEnemyWithSpell:
+            case BattleState.SelectingEnemy:
                 break;
             case BattleState.Inactive:
                 // Need to set inactive at the end of a battle. Just haven't added functionality yet.
@@ -360,6 +358,8 @@ public class BattleManager : MonoBehaviour
         Debug.Log("Enabling spells");
         // enable the spells panel and update the text on the buttons to match the spell names
         spellsPanel.SetActive(true);
+        // update caption text
+        battleCaptionText.SetText("Select a Spell");
 
         Debug.Log("Current spells: " + currentPlayer.playerSpells.Count.ToString());
 
@@ -387,7 +387,7 @@ public class BattleManager : MonoBehaviour
         }
 
         spellsPanel.SetActive(false);
-        UpdateBattleState(BattleState.SelectingEnemyWithSpell);
+        UpdateBattleState(BattleState.SelectingEnemy);
     }
 
     public UnityAction GetSpellCaster(int spellIndex)
@@ -481,6 +481,19 @@ public class BattleManager : MonoBehaviour
         confirmSelection.gameObject.SetActive(false);
     }
 
+    public void CloseSpellSelection()
+    {
+        battleCaptionText.SetText(" ");
+        spellsPanel.SetActive(false);
+    }
+
+    public void CloseEnemySelection()
+    {
+        // call closespellselection in case we are selecting a spell target
+        CloseSpellSelection();
+        UpdateBattleState(BattleState.PlayerTurn);
+    }
+
     public void FleeBattle()
     {
         //fade out
@@ -510,7 +523,7 @@ public class BattleManager : MonoBehaviour
     {
         // hide spell panel if necessary
         spellsPanel.SetActive(false);
-        UpdateBattleState(BattleState.SelectingEnemyBasic);
+        UpdateBattleState(BattleState.SelectingEnemy);
     }
 
     // Called every time a unit dies from BaseUnit
@@ -553,6 +566,5 @@ public enum BattleState
     Victory,
     Defeat,
     Inactive,
-    SelectingEnemyBasic,
-    SelectingEnemyWithSpell
+    SelectingEnemy
 }
