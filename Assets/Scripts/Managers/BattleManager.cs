@@ -52,6 +52,10 @@ public class BattleManager : MonoBehaviour
     
     public TextMeshProUGUI battleCaptionText;
 
+    //list for HPBars so we can update them efficiently
+
+    public List<EnemyHPBar> enemyHPBars = new List<EnemyHPBar>();
+
 
     //references to the specific buttons
 
@@ -90,6 +94,8 @@ public class BattleManager : MonoBehaviour
     // Start inactive while no battles going
     private void Start()
     {
+
+        
         // add listener for selection completion
         //BattleCursor.EnemySelected += 
         UpdateBattleState(BattleState.Inactive);
@@ -115,7 +121,8 @@ public class BattleManager : MonoBehaviour
     {
         if (gameState == GameState.Fighting)
         {
-            
+
+
             // the battle scene will be active by this point so we can attach the methods to the gui
             // grab the gui and attach the necessary functions
             fightButton = GameObject.FindWithTag("FightButton").GetComponent<Button>();
@@ -158,8 +165,7 @@ public class BattleManager : MonoBehaviour
             battleCaptionText = GameObject.FindWithTag("Description").GetComponent<TextMeshProUGUI>();
 
             //transitions
-            //im finding the animation controller here, im not too sure if this is the right way to do it
-            
+            //im finding the animation controller here
             transitionController = GameObject.FindWithTag("Transitions").GetComponent<TransitionsAnimController>();
 
              
@@ -198,6 +204,7 @@ public class BattleManager : MonoBehaviour
                 GameManager.Instance.playergameObj.transform.position = playerPosition.position;
                 // reset turn index to 0
                 turnIndex = 0;
+
                 break;
             case BattleState.PlayerTurn:
                 // functions for player turn
@@ -258,6 +265,12 @@ public class BattleManager : MonoBehaviour
         battleCaptionText.SetText(" ");
         rejectSelection.gameObject.SetActive(true);
         confirmSelection.gameObject.SetActive(true);
+
+        for(int i = 0; i < enemyHPBars.Count; i ++)
+        {
+            enemyHPBars[i].gameObject.SetActive(true); 
+            enemyHPBars[i].ResetHPBar();
+        }
     }
 
     public void UpdateTurnOrder()
@@ -349,6 +362,17 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log("Rolled for " + enemyUnits.Count + " enemies");
+
+        //activate the hpBars
+        for (int i = 0; i < enemyHPBars.Count; i++)
+        {
+            
+            enemyHPBars[i].gameObject.SetActive(true);
+            enemyHPBars[i].canUpdateHpBar = true;
+            enemyHPBars[i].SetInitialHpProgress();
+        }
+
+        
     }
 
     private void RollEnemiesScripted()
@@ -358,6 +382,8 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSpellSelection()
     {
+        CloseFleeSelection();
+
         // check we are on player turn
         if (battleUnits[turnIndex] is not Player)
             return;
@@ -396,6 +422,7 @@ public class BattleManager : MonoBehaviour
         }
 
         spellsPanel.SetActive(false);
+        
         UpdateBattleState(BattleState.SelectingEnemy);
     }
 
@@ -518,6 +545,7 @@ public class BattleManager : MonoBehaviour
         transitionController.CrossFadeOut();
         battleCaptionText.text = " ";
 
+        SetUpForNextEncounter(); 
         //THIS IS A BANDAGE FIX, i WILL ASK ABOUT THIS LATER
         StartCoroutine(ExitBattle());
     }
@@ -537,9 +565,11 @@ public class BattleManager : MonoBehaviour
 
     public void EnableSelectEnemy()
     {
+        
         // hide spell panel if necessary
         spellsPanel.SetActive(false);
         UpdateBattleState(BattleState.SelectingEnemy);
+        CloseFleeSelection();
     }
 
     // Called every time a unit dies from BaseUnit
@@ -571,6 +601,16 @@ public class BattleManager : MonoBehaviour
 
         enemyUnits.Clear();
     }
+
+    //after the player attacks we can update the hp bars
+    public void UpdateHPBars()
+    {
+        foreach(EnemyHPBar hpBar in enemyHPBars)
+        {
+            hpBar.UpdateHp(); 
+        }
+    }
+    
 }
 
 // Add any states needed for the battle here
