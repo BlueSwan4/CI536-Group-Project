@@ -20,6 +20,7 @@ public class InGameMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) == true) {
             MenuPanel.SetActive(true);
             InGamePanel.SetActive(false);
+            Time.timeScale = 0;
         };
 
     }
@@ -27,13 +28,15 @@ public class InGameMenu : MonoBehaviour
     public void Exit()
     {
         SceneManager.LoadScene(mMenu);
-        
+        Time.timeScale = 1;
+
     }
 
     public void Return()
     {
         MenuPanel.SetActive(false);
         InGamePanel.SetActive(true);
+        Time.timeScale = 1;
     }
 
 

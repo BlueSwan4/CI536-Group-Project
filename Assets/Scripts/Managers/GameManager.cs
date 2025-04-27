@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour
                 bool encounter = CheckForRandomEncounter();
                 if (encounter)
                 {
-                    Debug.Log("Encounter");
+                   // Debug.Log("Encounter");
                     //UpdateGameState(GameState.Fighting);
                 }
                 break;
