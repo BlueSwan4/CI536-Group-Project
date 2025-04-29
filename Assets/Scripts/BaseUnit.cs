@@ -22,6 +22,9 @@ public class BaseUnit : MonoBehaviour
 
     public BaseUnit target;
 
+    // type weaknesses
+    public List<SpellDataSO.elementType> typeWeaknesses = new();
+
     void Start()
     {
         
