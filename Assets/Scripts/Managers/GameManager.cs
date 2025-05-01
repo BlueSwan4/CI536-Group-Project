@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public float stepsTakenInOverworld = 0;
 
     // Not used at the moment, IMPLEMENT LATER
-    public bool inSafeArea = false; // flag to limit encounters to "unsafe" areas
+    public bool inSafeArea = true; // flag to limit encounters to "unsafe" areas
 
     public GameObject battleCamera; //for transitioning into the battle camera
     public GameObject playerCamera; 
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
                 if (encounter)
                 {
                    // Debug.Log("Encounter");
-                    //UpdateGameState(GameState.Fighting);
+                    UpdateGameState(GameState.Fighting);
                 }
                 break;
         }
@@ -165,8 +165,6 @@ public class GameManager : MonoBehaviour
         // event handler for battle end
         // for now we just return to the overworld
         UpdateGameState(GameState.Wandering);
-
-
     }
 
     private void OnDestroy()
@@ -182,5 +180,6 @@ public enum GameState
 {
     GameStart,
     Wandering,
-    Fighting
+    Fighting,
+    InDialogue
 }

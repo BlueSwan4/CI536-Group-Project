@@ -6,13 +6,13 @@ using UnityEngine;
 public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textComponent;
-    public string[] lines;
+    public List<string> lines = new();
     public float textSpeed;
     private int index;
     
 
     // Start is called before the first frame update
-    void Start()
+    void OnEnable() // was switched to onenable so dialogue would cycle correctly
     {
         textComponent.text = string.Empty;
         StartDialogue();
@@ -36,7 +36,8 @@ public class Dialogue : MonoBehaviour
     }
 
     void StartDialogue()
-    {       
+    {
+        Debug.Log("Dialogue started");
         index = 0;
         StartCoroutine(TypeLine());
     }
@@ -44,6 +45,7 @@ public class Dialogue : MonoBehaviour
 
     IEnumerator TypeLine()
     {
+        Debug.Log("Index: " + index);
         foreach (char c in lines[index].ToCharArray())
         {
             textComponent.text += c;
@@ -54,7 +56,7 @@ public class Dialogue : MonoBehaviour
 
     void NextLine()
     {
-        if (index < lines.Length - 1)
+        if (index < lines.Count - 1)
         {
             index++;
             textComponent.text = string.Empty;
@@ -62,9 +64,20 @@ public class Dialogue : MonoBehaviour
         }
         else
         {
-            
+            Debug.Log("Cycling");
             gameObject.SetActive(false);
+            
         }
+    }
 
+    public void SetLines(List<string> newLines)
+    {
+        // use this to set dialogue shown to match those stored on an npc
+        lines.Clear();
+
+        foreach (string newLine in newLines)
+        {
+            lines.Add(newLine);
+        }
     }
 }
