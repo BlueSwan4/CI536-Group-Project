@@ -43,7 +43,7 @@ public class Player : BaseUnit
                 // enable movement
                 movementScript.EnableMovement();
                 break;
-            case GameState.Fighting:
+            default:
                 movementScript.DisableMovement();
                 break;
         }

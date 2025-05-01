@@ -16,6 +16,7 @@ public class Dialogue : MonoBehaviour
     {
         textComponent.text = string.Empty;
         StartDialogue();
+        GameManager.Instance.UpdateGameState(GameState.InDialogue);
     }
 
     // Update is called once per frame
@@ -66,7 +67,7 @@ public class Dialogue : MonoBehaviour
         {
             Debug.Log("Cycling");
             gameObject.SetActive(false);
-            
+            GameManager.Instance.UpdateGameState(GameState.Wandering);
         }
     }
 

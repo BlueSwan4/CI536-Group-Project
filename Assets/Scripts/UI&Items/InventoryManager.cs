@@ -17,12 +17,14 @@ public class InventoryManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I)  && menuActivated)  
         {
+            GameManager.Instance.UpdateGameState(GameState.Wandering);
             InventoryMenu.SetActive(false);
             menuActivated = false;
             Time.timeScale = 1;
         }
-        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated)
+        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated && GameManager.Instance.State == GameState.Wandering)
         {
+            GameManager.Instance.UpdateGameState(GameState.ViewingInventory);
             InventoryMenu.SetActive(true);
             menuActivated = true;
             Time.timeScale = 0;

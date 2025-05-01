@@ -181,5 +181,6 @@ public enum GameState
     GameStart,
     Wandering,
     Fighting,
-    InDialogue
+    InDialogue,
+    ViewingInventory
 }
