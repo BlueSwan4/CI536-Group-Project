@@ -1,8 +1,10 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -31,16 +33,16 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public int AddItem(string itemName, int quantity, Sprite itemSprite, string itemDescription)
+    public int AddItem(string itemName, int quantity, Sprite itemSprite, string itemDescription, ItemScriptable itemSO)
     {
        
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if (itemSlot[i].isFull == false && itemSlot[i].name == name || itemSlot[i].quantity == 0)
             {
-                int leftOverItems = itemSlot[i].AddItem(itemName, quantity, itemSprite, itemDescription);
+                int leftOverItems = itemSlot[i].AddItem(itemName, quantity, itemSprite, itemDescription, itemSO);
                 if (leftOverItems > 0)
-                    leftOverItems = AddItem(itemName, leftOverItems, itemSprite, itemDescription);
+                    leftOverItems = AddItem(itemName, leftOverItems, itemSprite, itemDescription, itemSO);
 
 
                     return leftOverItems;
@@ -55,6 +57,32 @@ public class InventoryManager : MonoBehaviour
         {
             itemSlot[i].selectedShader.SetActive(false);
             itemSlot[i].thisItemSelected = false;
+        }
+    }
+
+    public void UseItem()
+    {
+        // will be attached to the use button in the inventory screen
+        int itemIndex = -1;
+        
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if (itemSlot[i].thisItemSelected)
+            {
+                itemIndex = i;
+                break;
+            }
+        }
+
+        if (itemIndex == -1)
+            return;
+
+        // use the item stored at the current index
+        itemSlot[itemIndex].slotItemSO.UseItem();
+        if(itemSlot[itemIndex].UpdateSlottedItem())
+        {
+            if (itemIndex < itemSlot.Length - 1)
+                itemSlot[itemIndex].MoveDataToPreviousSlot(itemIndex + 1);
         }
     }
 }
