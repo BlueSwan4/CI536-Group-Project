@@ -67,7 +67,12 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
         slotItemSO = itemDataSO; // use the scriptable object so we can actually call the useitem method
 
-        isFull = true;
+        // check if we're at the stack limit for this item#
+        if (this.quantity + quantity > slotItemSO.stackLimit)
+        { 
+            isFull = true;
+            return quantity;
+        }
 
         quantityText.text = quantity.ToString();
         quantityText.enabled = true;
@@ -118,8 +123,9 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public bool UpdateSlottedItem(bool reduction = true)
     {
-        Debug.Log("Updating item slot");
         // returns true if slot is now empty
+        Debug.Log("Updating item slot");
+        
         if (quantity == 1 && reduction)
         {
             // no items left, clear these fields

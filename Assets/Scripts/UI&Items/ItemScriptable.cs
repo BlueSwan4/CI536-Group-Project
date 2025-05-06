@@ -8,6 +8,7 @@ public class ItemScriptable : ScriptableObject
     public string itemName;
     public StatToChange statToChange = new StatToChange();
     public int amountToChangeStat;
+    public int stackLimit = 5;
 
     public void UseItem()
     {

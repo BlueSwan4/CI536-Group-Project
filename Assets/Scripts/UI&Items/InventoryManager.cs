@@ -44,7 +44,9 @@ public class InventoryManager : MonoBehaviour
        
         for (int i = 0; i < itemSlot.Length; i++)
         {
-            if (itemSlot[i].isFull == false && itemSlot[i].name == name || itemSlot[i].quantity == 0)
+            Debug.Log("Current Slot Item: " + itemSlot[i].itemName);
+            Debug.Log("Name of item to add: " + itemName);
+            if ((itemSlot[i].isFull == false && itemSlot[i].itemName == itemName) || itemSlot[i].quantity == 0)
             {
                 int leftOverItems = itemSlot[i].AddItem(itemName, quantity, itemSprite, itemDescription, itemSO);
                 if (leftOverItems > 0)
@@ -91,11 +93,15 @@ public class InventoryManager : MonoBehaviour
 
         // use the item stored at the current index
         itemSlot[itemIndex].slotItemSO.UseItem();
+
         if(itemSlot[itemIndex].UpdateSlottedItem())
         {
             if (itemIndex < itemSlot.Length - 1)
                 itemSlot[itemIndex].MoveSlotData(itemIndex);
         }
+
+        // update item slot full status
+        itemSlot[itemIndex].isFull = false;
     }
 
     public bool IsInventoryEmpty()
