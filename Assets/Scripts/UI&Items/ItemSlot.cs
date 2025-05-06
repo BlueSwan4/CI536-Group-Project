@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 
 public class ItemSlot : MonoBehaviour, IPointerClickHandler
 {
-
     public string itemName;
     public int quantity;
     public Sprite itemSprite;
@@ -67,19 +66,12 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
         slotItemSO = itemDataSO; // use the scriptable object so we can actually call the useitem method
 
-        // check if we're at the stack limit for this item#
-        if (this.quantity + quantity > slotItemSO.stackLimit)
-        { 
-            isFull = true;
-            return quantity;
-        }
-
         quantityText.text = quantity.ToString();
         quantityText.enabled = true;
         itemImage.sprite = itemSprite;
 
         this.quantity += quantity;
-        if (this.quantity >= maxNumberOfItems)
+        if (this.quantity >= slotItemSO.stackLimit)
         {
             quantityText.text = maxNumberOfItems.ToString();
             quantityText.enabled = true;
@@ -87,6 +79,8 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
             int extraItems = this.quantity - maxNumberOfItems;
             this.quantity = maxNumberOfItems;
+
+            isFull = true;
             return extraItems;
 
         }
