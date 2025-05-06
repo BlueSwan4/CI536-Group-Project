@@ -5,15 +5,21 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
+using TMPro;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
     public GameObject InventoryMenu;
     private bool menuActivated;
-    [SerializeField]
     public ItemSlot[] itemSlot;
-  
-  
+
+    // GUI references
+    [Header("Item Description Widgets")]
+    [SerializeField] private TextMeshProUGUI descriptionHeader;
+    [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private Button useItemButton;
+
     // Update is called once per frame
     void Update()
     {
@@ -58,6 +64,10 @@ public class InventoryManager : MonoBehaviour
             itemSlot[i].selectedShader.SetActive(false);
             itemSlot[i].thisItemSelected = false;
         }
+        // empty the description text and disable item use button
+        descriptionHeader.SetText("");
+        descriptionText.SetText("");
+        useItemButton.gameObject.SetActive(false);
     }
 
     public void UseItem()
@@ -74,6 +84,8 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
+        Debug.Log("Chosen item index: " + itemIndex);
+
         if (itemIndex == -1)
             return;
 
@@ -82,7 +94,23 @@ public class InventoryManager : MonoBehaviour
         if(itemSlot[itemIndex].UpdateSlottedItem())
         {
             if (itemIndex < itemSlot.Length - 1)
-                itemSlot[itemIndex].MoveDataToPreviousSlot(itemIndex + 1);
+                itemSlot[itemIndex].MoveSlotData(itemIndex);
         }
+    }
+
+    public bool IsInventoryEmpty()
+    {
+        bool empty = true;
+
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if (itemSlot[i].quantity != 0)
+            {
+                empty = false;
+                break;
+            }
+        }
+
+        return empty;
     }
 }
