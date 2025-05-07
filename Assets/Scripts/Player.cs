@@ -12,6 +12,7 @@ public class Player : BaseUnit
 
     // Only needed by the player for now. If have multiple players might need to create BaseFriendly class
     public int sp;
+    public int maxSP;
 
     public List<SpellDataSO> playerSpells = new();
 
@@ -22,6 +23,7 @@ public class Player : BaseUnit
         attack = 5;
         health = 20;
         sp = 10;
+        maxSP = 10;
 
         // subscribe to battle events
 
@@ -43,7 +45,7 @@ public class Player : BaseUnit
                 // enable movement
                 movementScript.EnableMovement();
                 break;
-            case GameState.Fighting:
+            default:
                 movementScript.DisableMovement();
                 break;
         }
