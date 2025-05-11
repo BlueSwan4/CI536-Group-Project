@@ -9,13 +9,14 @@ public class BaseEnemy : BaseUnit
     [SerializeField] private UnitDataSO enemyStats;
     [SerializeField] private BasicEnemyAnimControl anim;
 
-    public void Start()
+    public virtual void Start()
     {
         // on instantiation, read in data from associated scriptable object
         maxHealth = enemyStats.maxUnitHealth;
         health = enemyStats.maxUnitHealth;
         attack = enemyStats.baseAttack;
         speed = enemyStats.baseSpeed;
+        unitName = enemyStats.unitName;
     }
 
     public override void UseTurn()

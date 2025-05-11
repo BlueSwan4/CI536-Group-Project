@@ -17,6 +17,7 @@ public class BaseUnit : MonoBehaviour
     public int health;
     public int attack;
     public int speed;
+    public string unitName;
 
     public float attackDuration = 2.5f;
 
