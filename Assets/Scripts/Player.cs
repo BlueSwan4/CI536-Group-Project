@@ -109,4 +109,10 @@ public class Player : BaseUnit
         Debug.Log("Ending player turn");
         EndUnitTurn();
     }
+
+    // use this to prevent compilation errors, default to 0th enemy
+    public override void UseTurn()
+    {
+        OnEnemySelected(0);
+    }
 }

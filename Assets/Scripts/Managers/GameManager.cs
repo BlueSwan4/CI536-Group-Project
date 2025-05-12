@@ -103,12 +103,13 @@ public class GameManager : MonoBehaviour
         if (inSafeArea)
             return false;
         // if we haven't moved then don't trigger an encounter
-        if (stepsTakenInOverworld < 5)
+        if (stepsTakenInOverworld < 10)
             return false;
 
         // use steps count to determine if we have encountered an enemy
+        Debug.Log("Steps taken in overworld:" + (int)stepsTakenInOverworld);
 
-        float res = UnityEngine.Random.Range(0f, 50f) - stepsTakenInOverworld;
+        float res = UnityEngine.Random.Range(0f, 100f) - stepsTakenInOverworld;
 
         return res < 20; // TODO: replace this with the final random encounter formula
     }

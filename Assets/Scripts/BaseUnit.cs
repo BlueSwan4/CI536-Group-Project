@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class BaseUnit : MonoBehaviour
+public abstract class BaseUnit : MonoBehaviour
 {
     // unit events
     public static event Action UnitTurnEndEvent;
@@ -35,10 +35,7 @@ public class BaseUnit : MonoBehaviour
     {
         
     }
-    public virtual void UseTurn()
-    {
-
-    }
+    public abstract void UseTurn();
 
     //Connects to BattleManager
     public virtual void ReceieveDamage(int amount)
