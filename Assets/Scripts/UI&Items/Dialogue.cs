@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,7 +10,13 @@ public class Dialogue : MonoBehaviour
     public List<string> lines = new();
     public float textSpeed;
     private int index;
-    
+
+    private GameObject dialogueSource = null;
+
+    // dialogue events, can use these if you want to time animations and other things correctly
+    // each event references the dialogue's source game object
+    public static event Action<GameObject> DialogueStartedEvent;
+    public static event Action<GameObject> DialogueEndedEvent;
 
     // Start is called before the first frame update
     void OnEnable() // was switched to onenable so dialogue would cycle correctly
@@ -38,6 +45,7 @@ public class Dialogue : MonoBehaviour
 
     void StartDialogue()
     {
+        DialogueStartedEvent.Invoke(dialogueSource);
         Debug.Log("Dialogue started");
         index = 0;
         StartCoroutine(TypeLine());
@@ -67,12 +75,15 @@ public class Dialogue : MonoBehaviour
         {
             Debug.Log("Cycling");
             gameObject.SetActive(false);
+            // raise dialogue end event
+            DialogueEndedEvent.Invoke(dialogueSource);
             GameManager.Instance.UpdateGameState(GameState.Wandering);
         }
     }
 
-    public void SetLines(List<string> newLines)
+    public void SetLines(List<string> newLines, GameObject source)
     {
+        dialogueSource = source;
         // use this to set dialogue shown to match those stored on an npc
         lines.Clear();
 

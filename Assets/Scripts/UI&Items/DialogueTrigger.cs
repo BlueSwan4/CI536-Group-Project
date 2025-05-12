@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,7 @@ public class DialogueTrigger : MonoBehaviour
 
     [SerializeField] float _triggerDistance = 1f;
     [SerializeField] List<string> npcLines = new(); // add this so npcs can have their own dialogue
-    
+
     public GameObject Player;
 
     float _distance;
@@ -48,7 +49,7 @@ public class DialogueTrigger : MonoBehaviour
         if (playerIsClose && Input.GetKeyUp(KeyCode.E))
         {
             // send dialogue to the panel
-            DialoguePanel.GetComponent<Dialogue>().SetLines(npcLines);
+            DialoguePanel.GetComponent<Dialogue>().SetLines(npcLines, gameObject);
             DialoguePanel.SetActive(true);
         }
     }
