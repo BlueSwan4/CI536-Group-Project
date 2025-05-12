@@ -38,7 +38,4 @@ public class InGameMenu : MonoBehaviour
         InGamePanel.SetActive(true);
         Time.timeScale = 1;
     }
-
-
-
 }
