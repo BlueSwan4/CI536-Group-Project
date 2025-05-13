@@ -174,6 +174,18 @@ public class GameManager : MonoBehaviour
         // unsubscribe from all events
         BattleManager.BattleEndEvent -= OnBattleEnd;
     }
+
+    public string GetOverworldSceneName()
+    {
+        if (overworldScene == null)
+        {
+            return "";
+        }
+        else
+        {
+            return overworldScene.name;
+        }
+    }
 }
 
 // Add more states as necessary, these are for actions that fundamentally change what happens in the game

@@ -22,14 +22,12 @@ public class InGameMenu : MonoBehaviour
             InGamePanel.SetActive(false);
             Time.timeScale = 0;
         };
-
     }
 
     public void Exit()
     {
         SceneManager.LoadScene(mMenu);
         Time.timeScale = 1;
-
     }
 
     public void Return()

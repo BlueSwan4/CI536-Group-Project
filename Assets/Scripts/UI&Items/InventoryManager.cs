@@ -7,9 +7,13 @@ using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class InventoryManager : MonoBehaviour
 {
+    // static exposed instance, so we can use the same trick with the game and battle managers
+    public static InventoryManager Instance;
+
     public GameObject InventoryMenu;
     private bool menuActivated;
     public ItemSlot[] itemSlot;
@@ -20,22 +24,29 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Button useItemButton;
 
+    public void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.I)  && menuActivated)  
         {
-            GameManager.Instance.UpdateGameState(GameState.Wandering);
-            InventoryMenu.SetActive(false);
-            menuActivated = false;
-            Time.timeScale = 1;
+            OpenInventory();
         }
-        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated && GameManager.Instance.State == GameState.Wandering)
+        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated && (GameManager.Instance.State == GameState.Wandering || (GameManager.Instance.State == GameState.Fighting && BattleManager.Instance.State == BattleState.PlayerTurn))) // add check so we can only open the inv in the battle when its our turn or in overworld
         {
-            GameManager.Instance.UpdateGameState(GameState.ViewingInventory);
-            InventoryMenu.SetActive(true);
-            menuActivated = true;
-            Time.timeScale = 0;
+            CloseInventory();
         }
     }
 
@@ -74,6 +85,15 @@ public class InventoryManager : MonoBehaviour
 
     public void UseItem()
     {
+        // check we should actually be able to use the item
+        if (GameManager.Instance.State == GameState.Fighting)
+        {
+            if (BattleManager.Instance.State != BattleState.PlayerTurn)
+            {
+                return;
+            }
+        }
+
         // will be attached to the use button in the inventory screen
         int itemIndex = -1;
         
@@ -102,6 +122,14 @@ public class InventoryManager : MonoBehaviour
 
         // update item slot full status
         itemSlot[itemIndex].isFull = false;
+
+        // if we're on the player turn, make sure it gets spent
+        if (BattleManager.Instance.State == BattleState.PlayerTurn)
+        {
+            BaseUnit.EndUnitTurn(); // trigger end of turn
+            // close inventory screen
+            CloseInventory();
+        }
     }
 
     public bool IsInventoryEmpty()
@@ -118,5 +146,33 @@ public class InventoryManager : MonoBehaviour
         }
 
         return empty;
+    }
+
+    public void OpenInventory()
+    {
+        // check what state we're in
+        if (GameManager.Instance.State == GameState.Wandering)
+        {
+            GameManager.Instance.UpdateGameState(GameState.ViewingInventory);
+        }
+
+        GetComponent<Canvas>().sortingOrder = 1;
+        menuActivated = true;
+        InventoryMenu.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    public void CloseInventory()
+    {
+        menuActivated = false;
+        InventoryMenu.SetActive(false);
+        Time.timeScale = 1;
+        if (GameManager.Instance.State == GameState.ViewingInventory)
+        {
+            GameManager.Instance.UpdateGameState(GameState.Wandering);
+        }
+
+        // reset z index
+        GetComponent<Canvas>().sortingOrder = 0;
     }
 }

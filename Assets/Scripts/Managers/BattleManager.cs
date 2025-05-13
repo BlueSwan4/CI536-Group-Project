@@ -49,6 +49,7 @@ public class BattleManager : MonoBehaviour
     [Header("GUI References")]
     public Button fightButton;
     public Button runButton;
+    public Button inventoryButton;
     
     public TextMeshProUGUI battleCaptionText;
 
@@ -130,10 +131,11 @@ public class BattleManager : MonoBehaviour
 
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
-
             runButton.onClick.AddListener(OpenFleeSelection);
 
-
+            // attach inventory button
+            inventoryButton = GameObject.FindWithTag("InventoryButton").GetComponent<Button>();
+            inventoryButton.onClick.AddListener(InventoryManager.Instance.OpenInventory);
 
             spellButton = GameObject.FindWithTag("SpellButton").GetComponent<Button>();
             spellButton.onClick.AddListener(EnableSpellSelection);
@@ -145,7 +147,6 @@ public class BattleManager : MonoBehaviour
             {
                 spellsPanel.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(GetSpellCaster(i)); // use a helper function to prevent late binding (Martelli et al. 2010)
             }
-
 
             spellsPanel.SetActive(false); // disable on start
 
@@ -167,10 +168,6 @@ public class BattleManager : MonoBehaviour
             //transitions
             //im finding the animation controller here
             transitionController = GameObject.FindWithTag("Transitions").GetComponent<TransitionsAnimController>();
-
-             
-             
-
         }
         else
         {
