@@ -63,6 +63,7 @@ public class BattleCursor : MonoBehaviour
                 }
             }
 
+            Debug.Log("Current index of enemy selection: " + selectionIndex);
             // move cursor to chosen enemy pos
             transform.position = BattleManager.Instance.enemyUnits[selectionIndex].transform.position + new Vector3(-1, 0, 0);
 
