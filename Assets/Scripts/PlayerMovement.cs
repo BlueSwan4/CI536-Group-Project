@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,16 +7,23 @@ public class PlayerMovement : MonoBehaviour
 {
     // Variables
     [SerializeField] private float movSpeed;
-    private float speedX;
+    public float speedX;
     private float speedY;
     private Rigidbody2D rb;
-    
+
+    // movement data
+    private Vector2 _dest = Vector2.zero;
+    private float _moveDuration = 0;
+    private GameObject _caller;
+
+    public static event Action<GameObject> MovementCompleted;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         speedX = Input.GetAxisRaw("Horizontal") * movSpeed;
         speedY = Input.GetAxisRaw("Vertical") * movSpeed;
@@ -34,5 +42,44 @@ public class PlayerMovement : MonoBehaviour
     public void EnableMovement()
     {
         enabled = true;
+    }
+
+    public float GetXSpeed()
+    {
+        return speedX;
+    }
+
+    public float GetYSpeed()
+    {
+        return speedY;
+    }
+
+    public IEnumerator _MoveToLocation()
+    {
+        // moves .1 metres per call
+        // interp by 10%
+        // also make sure to set velocity to 0
+        Vector2 startPos = (Vector2)transform.position; // get full movement, but only go for a fraction]
+        Vector2 moveVector = (_dest - startPos) * 0.1f;
+        int callNo = (int)(Vector2.Distance(startPos, _dest) / 0.1f);
+
+        float delay = _moveDuration / callNo;
+
+        for (int i = 0; i < callNo; i++)
+        {
+            transform.position += (Vector3)moveVector;
+            yield return new WaitForSeconds(delay);
+        }
+
+        // snap to destination
+        transform.position = _dest;
+        MovementCompleted?.Invoke(_caller);
+    }
+
+    public void MoveToLocation(Vector2 dest, float moveDuration, GameObject caller)
+    {
+        _dest = dest;
+        _moveDuration = moveDuration;
+        _caller = caller;
     }
 }

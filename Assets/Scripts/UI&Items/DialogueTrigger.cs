@@ -62,6 +62,13 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
+    public void EnableDialogue()
+    {
+        // have a method available so we can trigger dialogue on command (e.g. for a "cutscene")
+        DialoguePanel.GetComponent<Dialogue>().SetLines(npcLines, gameObject);
+        DialoguePanel.SetActive(true);
+    }
+
 
     //private bool inRange = false;
 
