@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
         return res < 20; // TODO: replace this with the final random encounter formula
     }
 
-    private void TransitionToBattleFromOverworld()
+    private void TransitionToBattleFromOverworld(bool bossFight = false)
     {
         // get a "hook" for the scene to return to on battle conclusion
         overworldScene = SceneManager.GetActiveScene();
@@ -132,7 +132,6 @@ public class GameManager : MonoBehaviour
         root.rootObject.SetActive(true);
         // disable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(false);
-
 
         //activating the battle camera and deactivating the player camera will automatically change the camera position and settings
         battleCamera.SetActive(true);

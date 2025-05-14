@@ -71,6 +71,13 @@ public class BattleManager : MonoBehaviour
     public Button spellButton;
     public GameObject spellsPanel;
 
+    public bool canFlee = true;
+
+    [Header("Boss Information (if applicable)")]
+    [SerializeField] GameObject bossGameObject;
+    [SerializeField] bool isBossPrefab = false;
+    [SerializeField] bool isBossFightHappening = false;
+
 
     private void Awake()
     {
@@ -132,6 +139,7 @@ public class BattleManager : MonoBehaviour
             // attach the run button
             runButton = GameObject.FindWithTag("RunButton").GetComponent<Button>();
             runButton.onClick.AddListener(OpenFleeSelection);
+            runButton.interactable = canFlee;
 
             // attach inventory button
             inventoryButton = GameObject.FindWithTag("InventoryButton").GetComponent<Button>();
@@ -190,7 +198,15 @@ public class BattleManager : MonoBehaviour
             case BattleState.StartBattle:
                 // functions called before starting battle
                 // spawn enemies
-                RollEnemies();
+                if (isBossFightHappening)
+                {
+                    RollEnemiesScripted(bossGameObject, isBossPrefab);
+                }
+                else
+                {
+                    RollEnemies();
+                }
+                
                 // set turn order based on enemy spawns
                 // add player to battle units and players list
                 playerUnits.Add(GameManager.Instance.playergameObj.GetComponent<Player>());
@@ -206,7 +222,7 @@ public class BattleManager : MonoBehaviour
             case BattleState.PlayerTurn:
                 // functions for player turn
                 // enable battle control gui elements
-                runButton.interactable = true;
+                runButton.interactable = canFlee;
                 fightButton.interactable = true;
                 spellButton.interactable = true;
                 break;
@@ -268,6 +284,12 @@ public class BattleManager : MonoBehaviour
             enemyHPBars[i].gameObject.SetActive(true); 
             enemyHPBars[i].ResetHPBar();
         }
+
+        // reset boss data
+        bossGameObject = null;
+        isBossPrefab = false;
+        isBossFightHappening = false;
+        canFlee = true;
     }
 
     public void UpdateTurnOrder()
@@ -372,9 +394,34 @@ public class BattleManager : MonoBehaviour
         
     }
 
-    private void RollEnemiesScripted()
+    private void RollEnemiesScripted(GameObject bossEnemy, bool enemyIsPrefab)
     {
         // use this to add specific enemies (i.e. for story battles / bosses)
+        GameObject spawnedBoss = null;
+
+        if (enemyIsPrefab)
+        {
+            spawnedBoss = Instantiate(bossEnemy, centredPosition.position, Quaternion.identity); // use this if spawning from prefab
+        }
+        else
+        {
+            spawnedBoss = bossEnemy;
+            bossEnemy.transform.position = centredPosition.position;
+            bossEnemy.transform.rotation = Quaternion.identity;
+        }
+
+        // add boss enemy to enemy units
+        enemyUnits.Add(spawnedBoss.GetComponent<BaseEnemy>());
+        battleUnits.Add(spawnedBoss.GetComponent<BaseEnemy>());
+
+    }
+
+    public void ReceiveBossData(GameObject boss, bool isPrefab)
+    {
+        bossGameObject = boss;
+        isBossPrefab = isPrefab;
+        isBossFightHappening = true;
+        canFlee = false;
     }
 
     public void EnableSpellSelection()
