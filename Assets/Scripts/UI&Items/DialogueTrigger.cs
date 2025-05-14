@@ -6,10 +6,10 @@ using UnityEngine;
 public class DialogueTrigger : MonoBehaviour
 {
     public GameObject DialoguePanel;
-    public GameObject Text;
     
 
-    [SerializeField] float _triggerDistance = 1f; 
+    [SerializeField] float _triggerDistance = 1f;
+    [SerializeField] List<string> npcLines = new(); // add this so npcs can have their own dialogue
     
     public GameObject Player;
 
@@ -45,14 +45,21 @@ public class DialogueTrigger : MonoBehaviour
         // updating the distance from player, eventually triggering the animation
         distance = Vector3.Distance(transform.position, Player.transform.position);
         // catch input if playerIsClose is true
-        if (playerIsClose && Input.GetKeyDown(KeyCode.E))
+        if (playerIsClose && Input.GetKeyUp(KeyCode.E))
         {
+            // send dialogue to the panel
+            DialoguePanel.GetComponent<Dialogue>().SetLines(npcLines);
             DialoguePanel.SetActive(true);
-            Text.SetActive(true);
         }
-
     }
 
+    private void Start()
+    {
+        if (Player == null)
+        {
+            Player = GameObject.FindWithTag("Player");
+        }
+    }
 
 
     //private bool inRange = false;

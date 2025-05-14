@@ -19,6 +19,8 @@ public class NewBehaviourScript : MonoBehaviour
 
     private InventoryManager inventoryManager;
 
+    [SerializeField] private ItemScriptable itemSOData;
+
     void Start()
     {
         inventoryManager = GameObject.Find("UI").GetComponent<InventoryManager>();
@@ -29,7 +31,7 @@ public class NewBehaviourScript : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            int leftOverItems = inventoryManager.AddItem(itemName, quantity, sprite, itemDescription);
+            int leftOverItems = inventoryManager.AddItem(itemName, quantity, sprite, itemDescription, itemSOData);
             if (leftOverItems <= 0) 
                 Destroy(gameObject);
             else
