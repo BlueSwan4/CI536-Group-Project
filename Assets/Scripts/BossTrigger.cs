@@ -25,6 +25,7 @@ public class BossTrigger : MonoBehaviour
         if (src == gameObject)
         {
             // we are the one who requested the move
+            Debug.Log("starting spider dialogue");
             spiderBossObject.GetComponent<DialogueTrigger>().EnableDialogue(); // start cutscene dialogue, spider will handle the rest
         }
     }

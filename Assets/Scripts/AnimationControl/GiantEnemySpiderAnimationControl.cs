@@ -11,6 +11,8 @@ public class GiantEnemySpiderAnimationControl : BasicEnemyAnimControl
         Dialogue.DialogueStartedEvent += BeginTalking;
         Dialogue.DialogueEndedEvent += BeginWalking;
 
+        BattleManager.BattleStateChange += GoToBattleIdle;
+
         if (enemyAnimator == null)
         {
             enemyAnimator = GetComponentInChildren<Animator>();
@@ -21,18 +23,36 @@ public class GiantEnemySpiderAnimationControl : BasicEnemyAnimControl
     public void BeginTalking(GameObject src)
     {
         if (src.tag == "GiantEnemySpider")
-            enemyAnimator.SetTrigger("BattleStarted");
+            enemyAnimator.SetTrigger("DialogueStarted");
     }
 
     public void BeginWalking(GameObject src)
     {
+        Debug.Log("dialogue ended");
         if (src.tag == "GiantEnemySpider")
+        {
             enemyAnimator.SetTrigger("BattleEntryWalk");
+            StartCoroutine("DelayForBattle");
+        }
     }
 
+    public void GoToBattleIdle(BattleState newState)
+    {
+        if (newState != BattleState.Inactive && newState != BattleState.EnemyTurn)
+        {
+            Debug.Log("detected battle start on spider");
+            enemyAnimator.SetTrigger("BattleStarted");
+        }
+    }
 
     public new void ShowAttack()
     {
         enemyAnimator.SetTrigger("UsingTurn");
+    }
+
+    public IEnumerator DelayForBattle()
+    {
+        yield return new WaitForSeconds(1);
+        GetComponent<GiantEnemySpider>().BeginSpiderBattle();
     }
 }

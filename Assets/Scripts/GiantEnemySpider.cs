@@ -19,6 +19,12 @@ public class GiantEnemySpider : BaseEnemy
         
     }
 
+    public void BeginSpiderBattle()
+    {
+        BattleManager.Instance.ReceiveBossData(gameObject, false);
+        GameManager.Instance.UpdateGameState(GameState.Fighting);
+    }
+
     // attacks include poison jab, pounce and web trap
 
     public void BasicAttack()
