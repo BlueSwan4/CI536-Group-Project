@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     private float _moveDuration = 0;
     private GameObject _caller;
 
+    private bool canMove = true;
+
     public static event Action<GameObject> MovementCompleted;
 
     void Start()
@@ -25,12 +27,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        speedX = Input.GetAxisRaw("Horizontal") * movSpeed;
-        speedY = Input.GetAxisRaw("Vertical") * movSpeed;
-        rb.velocity = new Vector2(speedX, speedY);
-        // for each metre of movement increment steps
-        float metres = rb.velocity.magnitude;
-        GameManager.Instance.stepsTakenInOverworld += metres * Time.deltaTime;
+        if (canMove)
+        {
+            speedX = Input.GetAxisRaw("Horizontal") * movSpeed;
+            speedY = Input.GetAxisRaw("Vertical") * movSpeed;
+            rb.velocity = new Vector2(speedX, speedY);
+            // for each metre of movement increment steps
+            float metres = rb.velocity.magnitude;
+            GameManager.Instance.stepsTakenInOverworld += metres * Time.deltaTime;
+        }
     }
 
     public void DisableMovement()
@@ -56,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
 
     public IEnumerator _MoveToLocation()
     {
+        canMove = false;
         // moves .1 metres per call
         // interp by 10%
         // also make sure to set velocity to 0
@@ -74,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
         // snap to destination
         transform.position = _dest;
         MovementCompleted?.Invoke(_caller);
+        canMove = true;
     }
 
     public void MoveToLocation(Vector2 dest, float moveDuration, GameObject caller)
@@ -81,5 +88,7 @@ public class PlayerMovement : MonoBehaviour
         _dest = dest;
         _moveDuration = moveDuration;
         _caller = caller;
+
+        StartCoroutine("_MoveToLocation");
     }
 }
