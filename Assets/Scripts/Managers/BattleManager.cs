@@ -164,6 +164,17 @@ public class BattleManager : MonoBehaviour
 
             spellsPanel.SetActive(false); // disable on start
 
+            //find the text
+            battleCaptionText = GameObject.FindWithTag("Description").GetComponent<TextMeshProUGUI>(); //WHY HAS THIS BROKEN!!!!????
+            if (battleCaptionText == null)
+            {
+                Debug.Log("couldnt find caption text");
+            }
+            else
+            {
+                Debug.Log("found caption text");
+            }
+
             UpdateBattleState(BattleState.StartBattle);
 
             //find the conformation buttons and deactivate them
@@ -176,8 +187,6 @@ public class BattleManager : MonoBehaviour
 
             confirmSelection.gameObject.SetActive(false);
 
-            //find the text
-            battleCaptionText = GameObject.FindWithTag("Description").GetComponent<TextMeshProUGUI>();
 
             //transitions
             //im finding the animation controller here
@@ -281,6 +290,7 @@ public class BattleManager : MonoBehaviour
 
     private void SetUpForNextEncounter()
     {
+        Debug.Log("setting up");
         spellsPanel.SetActive(true);
         battleCaptionText.SetText(" ");
         rejectSelection.gameObject.SetActive(true);
@@ -398,7 +408,15 @@ public class BattleManager : MonoBehaviour
             enemyHPBars[i].SetInitialHpProgress();
         }
 
-        
+        // set text to that of the leader enemy
+        if (enemyUnits.Count > 1)
+        {
+            battleCaptionText.SetText("A horde of enemies appeared!");
+        }
+        else
+        {
+            battleCaptionText.text = enemyUnits[0].GetIntroText();
+        }
     }
 
     private void RollEnemiesScripted(GameObject bossEnemy, bool enemyIsPrefab)
@@ -421,6 +439,8 @@ public class BattleManager : MonoBehaviour
         enemyUnits.Add(spawnedBoss.GetComponent<BaseEnemy>());
         battleUnits.Add(spawnedBoss.GetComponent<BaseEnemy>());
 
+        // set the caption text
+        battleCaptionText.SetText(bossEnemy.GetComponent<BaseEnemy>().GetIntroText());
     }
 
     public void ReceiveBossData(GameObject boss, bool isPrefab)
@@ -449,13 +469,20 @@ public class BattleManager : MonoBehaviour
 
         Debug.Log("Current spells: " + currentPlayer.playerSpells.Count.ToString());
 
-        for (int i = 0; i < currentPlayer.playerSpells.Count; i++)
+        for (int i = 0; i < 4; i++)
         {
             Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
-            newBtn.GetComponentInChildren<TextMeshProUGUI>().SetText(currentPlayer.playerSpells[i].spellName);
-            newBtn.gameObject.SetActive(true);
-            // check if we have enough sp
-            newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
+            if (i < playerUnits[i].playerSpells.Count)
+            {
+                newBtn.GetComponentInChildren<TextMeshProUGUI>().SetText(currentPlayer.playerSpells[i].spellName);
+                newBtn.gameObject.SetActive(true);
+                // check if we have enough sp
+                newBtn.interactable = currentPlayer.playerSpells[i].spCost <= currentPlayer.sp;
+            }
+            else
+            {
+                newBtn.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -533,6 +560,7 @@ public class BattleManager : MonoBehaviour
             else
             {
                 var enemy = battleUnits[turnIndex] as BaseEnemy;
+                // set battle text
                 enemy.UseTurn();
             }
         }
@@ -556,7 +584,7 @@ public class BattleManager : MonoBehaviour
 
         spellsPanel.SetActive(false);
 
-        battleCaptionText.text = " are you sure you want to flee? ";
+        battleCaptionText.text = " Are you sure you want to flee? ";
 
         // re enable the selection buttons
         rejectSelection.gameObject.SetActive(true);

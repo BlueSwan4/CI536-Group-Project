@@ -9,6 +9,9 @@ public class BaseEnemy : BaseUnit
     [SerializeField] private UnitDataSO enemyStats;
     [SerializeField] private BasicEnemyAnimControl anim;
 
+    [SerializeField] protected string[] IntroductionFlavourText;
+    [SerializeField] protected string[] AttackFlavourText;
+
     public virtual void Start()
     {
         // on instantiation, read in data from associated scriptable object
@@ -26,5 +29,24 @@ public class BaseEnemy : BaseUnit
         target = GameManager.Instance.playergameObj.GetComponent<Player>();
         anim.ShowAttack();
         StartCoroutine("UseBasicAttack");
+    }
+
+    public virtual string GetIntroText()
+    {
+        return GetRandomFormattedString(IntroductionFlavourText);
+    }
+
+    public virtual string GetAttackText()
+    {
+        return GetRandomFormattedString(AttackFlavourText);
+    }
+
+    protected string GetRandomFormattedString(string[] arr)
+    {
+        // based on documentation by Kulikov et al. (2024)
+        string msg = $""; // append to this string to allow for interpolation
+        msg = msg + arr[Random.Range(0, arr.Length - 1)];
+
+        return msg;
     }
 }
