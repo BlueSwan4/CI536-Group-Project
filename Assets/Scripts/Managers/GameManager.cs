@@ -125,6 +125,15 @@ public class GameManager : MonoBehaviour
         // move necessary objects to battle scene
         SceneManager.MoveGameObjectToScene(playergameObj, SceneManager.GetSceneByName("BattleScene"));
         SceneManager.MoveGameObjectToScene(transform.parent.gameObject, SceneManager.GetSceneByName("BattleScene"));
+
+        // if we have a boss move that to the scene
+        var bInfo = BattleManager.Instance.GetBossInfo();
+
+        if (bInfo.BossGameObject != null && !bInfo.isBossAPrefabObject)
+        {
+            SceneManager.MoveGameObjectToScene(bInfo.BossGameObject, SceneManager.GetSceneByName("BattleScene"));
+        }
+
         // set active scene to battle
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("BattleScene"));
         // get battle root

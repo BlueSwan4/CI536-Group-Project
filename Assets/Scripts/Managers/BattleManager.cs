@@ -124,6 +124,12 @@ public class BattleManager : MonoBehaviour
         BaseUnit.UnitTurnEndEvent -= OnTurnEnd;
     }
 
+    public BossInfo GetBossInfo()
+    {
+        return new BossInfo(bossGameObject, isBossPrefab);
+    }
+
+
     // Called from GameManager on state change
     private void BattleStarted(GameState gameState)
     {
@@ -246,6 +252,7 @@ public class BattleManager : MonoBehaviour
                 // clear unit lists
                 ClearBattleUnits();
                 SetUpForNextEncounter();
+                Debug.Log("game over");
                 BattleEndEvent.Invoke(); // GameManager
                 break;
             case BattleState.SelectingEnemy:
@@ -655,6 +662,18 @@ public class BattleManager : MonoBehaviour
         }
     }
     
+}
+
+public struct BossInfo
+{
+    public GameObject BossGameObject;
+    public bool isBossAPrefabObject;
+
+    public BossInfo(GameObject boss, bool isPf)
+    {
+        BossGameObject = boss;
+        isBossAPrefabObject = isPf;
+    }
 }
 
 // Add any states needed for the battle here
