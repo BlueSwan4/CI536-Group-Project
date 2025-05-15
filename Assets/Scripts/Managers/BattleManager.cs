@@ -71,6 +71,7 @@ public class BattleManager : MonoBehaviour
     public Button spellButton;
     public GameObject spellsPanel;
 
+
     public bool canFlee = true;
 
     [Header("Boss Information (if applicable)")]
@@ -78,6 +79,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] bool isBossPrefab = false;
     [SerializeField] bool isBossFightHappening = false;
 
+    private GameObject minimap;
 
     private void Awake()
     {
@@ -102,7 +104,7 @@ public class BattleManager : MonoBehaviour
     // Start inactive while no battles going
     private void Start()
     {
-
+        minimap = GameObject.FindWithTag("MiniMap");
         
         // add listener for selection completion
         //BattleCursor.EnemySelected += 
@@ -232,6 +234,8 @@ public class BattleManager : MonoBehaviour
                 GameManager.Instance.playergameObj.transform.position = playerPosition.position;
                 // reset turn index to 0
                 turnIndex = 0;
+
+                minimap.SetActive(false);
 
                 break;
             case BattleState.PlayerTurn:
@@ -638,7 +642,7 @@ public class BattleManager : MonoBehaviour
         spellsPanel.SetActive(true);
         UpdateBattleState(BattleState.Inactive);
         GameManager.Instance.UpdateGameState(GameState.Wandering);
-
+        minimap.SetActive(true);
         // TODO: transition back to overworld
     }
 

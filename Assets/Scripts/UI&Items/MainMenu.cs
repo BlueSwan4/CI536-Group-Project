@@ -8,11 +8,14 @@ public class MainMenu : MonoBehaviour
     public string overworld;
     public GameObject MenuPanel;
     public GameObject OptionsPanel;
+    public GameObject go_transitions;
+    public Animator anim_transitions; 
 
     public void StartGame()
     {
-        SceneManager.LoadScene(overworld);
+        anim_transitions.SetTrigger("ExitTriggered");
         Debug.Log("loading level");
+        StartCoroutine(EnterLevel());
 
     }
 
@@ -40,4 +43,12 @@ public class MainMenu : MonoBehaviour
     }
     
 
+
+
+    IEnumerator EnterLevel()
+    {
+
+        yield return new WaitForSeconds(1);
+        SceneManager.LoadScene(overworld);
+    }
 }
