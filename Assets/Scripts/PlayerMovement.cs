@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -20,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
 
     public static event Action<GameObject> MovementCompleted;
 
+    public static event Action StepCompleted;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -34,6 +37,12 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector2(speedX, speedY);
             // for each metre of movement increment steps
             float metres = rb.velocity.magnitude;
+
+            // check if we've moved a full metre
+            if ((int)(GameManager.Instance.stepsTakenInOverworld + (metres * Time.deltaTime)) > GameManager.Instance.stepsTakenInOverworld)
+            {
+                StepCompleted?.Invoke();
+            }
             GameManager.Instance.stepsTakenInOverworld += metres * Time.deltaTime;
         }
     }

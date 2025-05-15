@@ -244,6 +244,15 @@ public class BattleManager : MonoBehaviour
                 runButton.interactable = canFlee;
                 fightButton.interactable = true;
                 spellButton.interactable = true;
+                // set enemy text
+                if (enemyUnits.Count > 1)
+                {
+                    battleCaptionText.SetText("A horde of enemies appeared!");
+                }
+                else if (enemyUnits.Count == 1)
+                {
+                    battleCaptionText.SetText(enemyUnits[0].GetIntroText());
+                }
                 break;
             case BattleState.EnemyTurn:
                 runButton.interactable = false;
@@ -476,7 +485,7 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             Button newBtn = spellsPanel.transform.GetChild(i).GetComponent<Button>();
-            if (i < playerUnits[i].playerSpells.Count)
+            if (i < playerUnits[0].playerSpells.Count)
             {
                 newBtn.GetComponentInChildren<TextMeshProUGUI>().SetText(currentPlayer.playerSpells[i].spellName);
                 newBtn.gameObject.SetActive(true);
@@ -566,6 +575,7 @@ public class BattleManager : MonoBehaviour
                 var enemy = battleUnits[turnIndex] as BaseEnemy;
                 // set battle text
                 enemy.UseTurn();
+                battleCaptionText.SetText(enemy.GetAttackText()); // set after since were using a coroutine
             }
         }
         else

@@ -27,7 +27,9 @@ public class GameManager : MonoBehaviour
     public bool inSafeArea = true; // flag to limit encounters to "unsafe" areas
 
     public GameObject battleCamera; //for transitioning into the battle camera
-    public GameObject playerCamera; 
+    public GameObject playerCamera;
+
+    private bool willHaveEncounter = false;
 
 
     // TODO: change to don't destoy on load when we have extra game areas outside of the original and battle area
@@ -39,6 +41,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
             // subscribe to battle end event
             BattleManager.BattleEndEvent += OnBattleEnd;
+            PlayerMovement.StepCompleted += CheckForRandomEncounter;
         }
         else
         {
@@ -67,6 +70,7 @@ public class GameManager : MonoBehaviour
 
                 stepsTakenInOverworld = 0;
                 AudioManager.Instance.PlayMusic("OverworldMusic");
+                willHaveEncounter = false;
                 break;
             case GameState.Fighting:
                 // Activate the BattleManager
@@ -88,8 +92,7 @@ public class GameManager : MonoBehaviour
             case GameState.Fighting:
                 break;
             case GameState.Wandering:
-                bool encounter = CheckForRandomEncounter();
-                if (encounter)
+                if (willHaveEncounter)
                 {
                    // Debug.Log("Encounter");
                     UpdateGameState(GameState.Fighting);
@@ -98,20 +101,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private bool CheckForRandomEncounter()
+    public void CheckForRandomEncounter()
     {
         if (inSafeArea)
-            return false;
+        {
+            willHaveEncounter = false;
+            return;
+        }
         // if we haven't moved then don't trigger an encounter
         if (stepsTakenInOverworld < 10)
-            return false;
+        {
+            willHaveEncounter = false;
+            return;
+        }
 
         // use steps count to determine if we have encountered an enemy
         Debug.Log("Steps taken in overworld:" + (int)stepsTakenInOverworld);
 
-        float res = UnityEngine.Random.Range(0f, 100f) - stepsTakenInOverworld;
+        float res = UnityEngine.Random.Range(0f, 300f) - stepsTakenInOverworld;
 
-        return res < 20; // TODO: replace this with the final random encounter formula
+        willHaveEncounter = res < 20; // TODO: replace this with the final random encounter formula
     }
 
     private void TransitionToBattleFromOverworld(bool bossFight = false)
