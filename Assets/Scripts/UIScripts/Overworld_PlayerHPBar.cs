@@ -25,14 +25,14 @@ public class Overworld_PlayerHPBar : MonoBehaviour
         if (hpBar)
         {
             //20 is being set here because the max health value is 0 (the slider will display 0)
-            slider.maxValue = 20;
+            slider.maxValue = player.maxHealth;
             slider.value = player.health;
             sliderToolTip.text = player.health.ToString() + " / " + slider.maxValue;
         }
         else
         {
             //im setting the max value to 50 here as the player does not have a max value variable for sp
-            slider.maxValue = 50;
+            slider.maxValue = player.maxSP;
             slider.value = player.sp;
             sliderToolTip.text = player.sp.ToString() + " / " + slider.maxValue;
         }
