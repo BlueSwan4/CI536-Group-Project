@@ -66,13 +66,13 @@ public class GameManager : MonoBehaviour
                     TransitionToOverworldFromBattle();
 
                 stepsTakenInOverworld = 0;
-                //AudioManager.Instance.PlayMusic("OverworldMusic");
+                AudioManager.Instance.PlayMusic("OverworldMusic");
                 break;
             case GameState.Fighting:
                 // Activate the BattleManager
                 // move to battle scene
                 TransitionToBattleFromOverworld();
-                //AudioManager.Instance.PlayMusic("BattleMusic");
+                AudioManager.Instance.PlayMusic("BattleMusic");
                 break;
         }
 
@@ -103,17 +103,18 @@ public class GameManager : MonoBehaviour
         if (inSafeArea)
             return false;
         // if we haven't moved then don't trigger an encounter
-        if (stepsTakenInOverworld < 5)
+        if (stepsTakenInOverworld < 10)
             return false;
 
         // use steps count to determine if we have encountered an enemy
+        Debug.Log("Steps taken in overworld:" + (int)stepsTakenInOverworld);
 
-        float res = UnityEngine.Random.Range(0f, 50f) - stepsTakenInOverworld;
+        float res = UnityEngine.Random.Range(0f, 100f) - stepsTakenInOverworld;
 
         return res < 20; // TODO: replace this with the final random encounter formula
     }
 
-    private void TransitionToBattleFromOverworld()
+    private void TransitionToBattleFromOverworld(bool bossFight = false)
     {
         // get a "hook" for the scene to return to on battle conclusion
         overworldScene = SceneManager.GetActiveScene();
@@ -124,6 +125,15 @@ public class GameManager : MonoBehaviour
         // move necessary objects to battle scene
         SceneManager.MoveGameObjectToScene(playergameObj, SceneManager.GetSceneByName("BattleScene"));
         SceneManager.MoveGameObjectToScene(transform.parent.gameObject, SceneManager.GetSceneByName("BattleScene"));
+
+        // if we have a boss move that to the scene
+        var bInfo = BattleManager.Instance.GetBossInfo();
+
+        if (bInfo.BossGameObject != null && !bInfo.isBossAPrefabObject)
+        {
+            SceneManager.MoveGameObjectToScene(bInfo.BossGameObject, SceneManager.GetSceneByName("BattleScene"));
+        }
+
         // set active scene to battle
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("BattleScene"));
         // get battle root
@@ -132,10 +142,9 @@ public class GameManager : MonoBehaviour
         // disable overworld root
         GameObject.FindWithTag("OverworldRootRef").GetComponent<RootReferenceHolder>().rootObject.SetActive(false);
 
-
         //activating the battle camera and deactivating the player camera will automatically change the camera position and settings
         battleCamera.SetActive(true);
-        playerCamera.SetActive(false); 
+        playerCamera.SetActive(false);
     }
 
     private void TransitionToOverworldFromBattle()
@@ -172,6 +181,18 @@ public class GameManager : MonoBehaviour
         // maybe not necessary, but as mentioned by violet this is probably good practice
         // unsubscribe from all events
         BattleManager.BattleEndEvent -= OnBattleEnd;
+    }
+
+    public string GetOverworldSceneName()
+    {
+        if (overworldScene == null)
+        {
+            return "";
+        }
+        else
+        {
+            return overworldScene.name;
+        }
     }
 }
 

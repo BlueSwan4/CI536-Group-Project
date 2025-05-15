@@ -28,7 +28,7 @@ public class AudioManager : MonoBehaviour
 
     // Pass in the name of the music you want to play and it plays
     // Called from GameManager when states switch
-    public void PlayMusic(string name)
+    public void PlayMusic(string name, bool loop = true)
     {
         // From what I understand this is a shortcut of a search algorithm
         Sound s = Array.Find(musicSounds, x => x.name == name);
@@ -39,7 +39,9 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
+            Debug.Log("playing music");
             musicSource.clip = s.clip;
+            musicSource.loop = loop;
             musicSource.Play();
         }
     }
