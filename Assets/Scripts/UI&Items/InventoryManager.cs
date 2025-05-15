@@ -42,11 +42,13 @@ public class InventoryManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I)  && menuActivated)  
         {
-            OpenInventory();
-        }
-        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated && (GameManager.Instance.State == GameState.Wandering || (GameManager.Instance.State == GameState.Fighting && BattleManager.Instance.State == BattleState.PlayerTurn))) // add check so we can only open the inv in the battle when its our turn or in overworld
-        {
             CloseInventory();
+        }
+        else if (Input.GetKeyDown(KeyCode.I)  && !menuActivated) // add check so we can only open the inv in the battle when its our turn or in overworld
+        {
+            // check states are appropriate
+            if (GameManager.Instance.State == GameState.Wandering || BattleManager.Instance.State == BattleState.PlayerTurn)
+                OpenInventory();
         }
     }
 
