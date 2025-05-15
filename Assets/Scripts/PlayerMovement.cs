@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
     private float _moveDuration = 0;
     private GameObject _caller;
 
-    private bool canMove = true;
+    public bool canMove = true;
 
     public static event Action<GameObject> MovementCompleted;
 

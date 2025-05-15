@@ -66,13 +66,13 @@ public class GameManager : MonoBehaviour
                     TransitionToOverworldFromBattle();
 
                 stepsTakenInOverworld = 0;
-                //AudioManager.Instance.PlayMusic("OverworldMusic");
+                AudioManager.Instance.PlayMusic("OverworldMusic");
                 break;
             case GameState.Fighting:
                 // Activate the BattleManager
                 // move to battle scene
                 TransitionToBattleFromOverworld();
-                //AudioManager.Instance.PlayMusic("BattleMusic");
+                AudioManager.Instance.PlayMusic("BattleMusic");
                 break;
         }
 
@@ -144,7 +144,7 @@ public class GameManager : MonoBehaviour
 
         //activating the battle camera and deactivating the player camera will automatically change the camera position and settings
         battleCamera.SetActive(true);
-        playerCamera.SetActive(false); 
+        playerCamera.SetActive(false);
     }
 
     private void TransitionToOverworldFromBattle()

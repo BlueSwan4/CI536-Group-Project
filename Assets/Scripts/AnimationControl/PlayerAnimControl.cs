@@ -22,35 +22,50 @@ public class PlayerAnimControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // read rigidbody velocity to determine direction
-        if (movementScript.enabled && (movementScript.GetXSpeed() != 0 || movementScript.GetYSpeed() != 0))
+        // determine walking direction
+        if (movementScript.enabled && movementScript.canMove)
         {
-            //Debug.Log("Player is moving");
-            // get direction, priortise in order nesw
             if (movementScript.GetYSpeed() > 0)
-                controller.SetTrigger("walking_north");
+            {
+                controller.SetBool("moving_north", true);
+                controller.SetBool("moving_east", false);
+                controller.SetBool("moving_south", false);
+                controller.SetBool("moving_south", false);
+            }
             else if (movementScript.GetXSpeed() > 0)
-                controller.SetTrigger("walking_east");
+            {
+                controller.SetBool("moving_north", false);
+                controller.SetBool("moving_east", false);
+                controller.SetBool("moving_south", false);
+                controller.SetBool("moving_west", false);
+            }
             else if (movementScript.GetYSpeed() < 0)
-                controller.SetTrigger("walking_south");
+            {
+                controller.SetBool("moving_north", false);
+                controller.SetBool("moving_east", false);
+                controller.SetBool("moving_south", true);
+                controller.SetBool("moving_west", false);
+            }
             else if (movementScript.GetXSpeed() < 0)
-                controller.SetTrigger("walking_west");
+            {
+                controller.SetBool("moving_north", false);
+                controller.SetBool("moving_east", false);
+                controller.SetBool("moving_south", false);
+                controller.SetBool("moving_west", true);
+            }
+            else
+            {
+                // set all to false
+                controller.SetBool("moving_north", false);
+                controller.SetBool("moving_east", false);
+                controller.SetBool("moving_south", false);
+                controller.SetBool("moving_west", false);
+            }
         }
-        else
-        {
-            if (GameManager.Instance.State == GameState.Wandering)
-                return;
-
-            // player isn't moving, go to idle
-            if (controller.GetCurrentAnimatorStateInfo(0).IsName("player_walk_north"))
-                controller.SetTrigger("idle_north");
-            else if (controller.GetCurrentAnimatorStateInfo(0).IsName("player_walk_east"))
-                controller.SetTrigger("idle_east");
-            else if (controller.GetCurrentAnimatorStateInfo(0).IsName("player_walk_south"))
-                controller.SetTrigger("idle_south");
-            else if (controller.GetCurrentAnimatorStateInfo(0).IsName("player_walk_west"))
-                controller.SetTrigger("idle_west");
-        }
+        controller.SetBool("moving_north", false);
+        controller.SetBool("moving_east", false);
+        controller.SetBool("moving_south", false);
+        controller.SetBool("moving_west", false);
     }
 
     public void OnBattleUpdate(BattleState newState)
