@@ -161,6 +161,7 @@ public class BattleManager : MonoBehaviour
             // go through the spell buttons and attach the usespell method
             for (int i = 0; i < spellsPanel.transform.childCount; i++)
             {
+                Debug.Log("Current btn index: " + i);
                 spellsPanel.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(GetSpellCaster(i)); // use a helper function to prevent late binding (Martelli et al. 2010)
             }
 
